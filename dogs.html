@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawPal - Your One-Stop Pet Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <script src="/common.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#8B5CF6',
+                        secondary: '#F59E0B'
+                    },
+                    borderRadius: {
+                        'none': '0px',
+                        'sm': '8px',
+                        DEFAULT: '12px',
+                        'md': '16px',
+                        'lg': '20px',
+                        'xl': '24px',
+                        '2xl': '28px',
+                        '3xl': '32px',
+                        'full': '9999px',
+                        'button': '12px'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .cart-popup {
+transform: translateX(100%);
+transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+opacity: 0;
+visibility: hidden;
+}
+.cart-popup.show {
+transform: translateX(0);
+opacity: 1;
+visibility: visible;
+}
+
+       
+    </style>
+    <style>
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .pop-on-hover:hover {
+            animation: pop 0.3s ease-in-out;
+        }
+
+      
+
+        @keyframes smoothBounce {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-4px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .hover\:animate-bounce-smooth:hover {
+            animation: smoothBounce 0.4s ease-in-out;
+        }
+        @keyframes slide-in {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+
+    </style>
+</head>
+<body class="bg-gradient-to-b from-white via-purple-50/80 via-pink-50/50 via-blue-50/30 to-white">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/80 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="#" class="text-2xl font-['Pacifico'] text-primary flex items-center gap-2">
+                        
+                        <span>PawPal</span>
+                    </a>
+                    <div class="hidden md:flex items-center space-x-8 ml-10">
+                        <a href="pet.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Home</a>
+                        <a href="aboutus.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">About Us</a>
+                        <a href="dogs.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Dogs</a>
+                        <a href="cats.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Cats</a>
+                        <a href="pets.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Small pets</a>
+                        <a href="products.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Products</a>
+                        <a href="care.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Care</a>
+                        <a href="qq.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">questionaire</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <!-- Search Bar -->
+                    <div id="searchBar" class="hidden items-center border border-gray-300 bg-white rounded-md px-2 h-8">
+                        <input type="text" class="w-40 text-sm outline-none" placeholder="Search...">
+                        <button onclick="toggleSearch()" class="ml-2 text-gray-600 text-sm">✖</button>
+                    </div>
+                    <!-- Search Button -->
+                    <button class="w-10 h-10 flex items-center justify-center" onclick="toggleSearch()">
+                        <i class="ri-search-line text-xl"></i>
+                    </button>
+                    <!-- Cart Button -->
+                    <button onclick="toggleCart()" class="relative p-2">
+                        🛒 Cart
+                        <span id="cartCount" class="absolute -top-1 -right-1 bg-primary text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                            0
+                        </span>
+                    </button>
+
+ 
+             <button class="w-10 h-10 flex items-center justify-center md:hidden" onclick="toggleMenu()">
+                        <i class="ri-menu-line text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+       <!-- Cart Popup -->
+   <!-- Cart Popup -->
+<div id="cartPopup" class="fixed top-16 right-4 bg-white rounded-lg shadow-lg p-6 w-96 hidden z-50">
+    <h3 class="text-xl font-bold mb-4">Your Cart</h3>
+    <div id="cartItems" class="space-y-4 max-h-96 overflow-y-auto">
+      <!-- Cart items will be dynamically added here -->
+    </div>
+    <div class="mt-6">
+      <p class="text-lg font-bold">Total: $<span id="cartTotal">0.00</span></p>
+    </div>
+    <div class="mt-4 flex gap-4">
+      <button onclick="checkout()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-all flex-1">
+        Checkout
+      </button>
+     
+      <button onclick="toggleCart()" class="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-all">
+        Close
+      </button>
+    </div>
+  </div>
+<!-- Mobile Navigation Menu -->
+<div id="mobileMenu" class="hidden fixed top-0 left-0 w-full h-full bg-white p-6 flex flex-col items-center shadow-lg transform transition-transform duration-300 ease-in-out -translate-x-full">
+    <button onclick="toggleMenu()" class="self-end text-gray-600 text-2xl hover:text-gray-900 transition-colors duration-200">✖</button>
+    <nav class="mt-6 w-full text-center space-y-4">
+        <a href="pet.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Home</a>
+        <a href="aboutus.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">About</a>
+        <a href="dogs.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Dogs</a>
+        <a href="cats.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Cats</a>
+        <a href="pets.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Small Pets</a>
+        <a href="products.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Products</a>
+        <a href="care.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Care</a>
+    </nav>
+  </div>
+  
+  <script>
+  function toggleMenu() {
+    const menu = document.getElementById('mobileMenu');
+    menu.classList.toggle('hidden');
+    menu.classList.toggle('translate-x-0');
+  }
+  </script>
+    <!-- Main Content -->
+    <main class="mt-16">
+        <!-- Add this inside the Hero Section or Featured Dog Breeds Section -->
+       <!-- Add this inside the Hero Section or Featured Dog Breeds Section -->
+
+        <!-- Hero Section -->
+        <section class="relative h-[600px] bg-cover bg-center animate-float" style="background-image: url('https://images.pexels.com/photos/2145878/pexels-photo-2145878.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2')">
+            <div class="absolute inset-0 bg-black bg-opacity-70 z-10"></div>
+            <div class="relative max-w-7xl mx-auto px-4 h-full flex items-center z-20" id="heroContent">
+                <div class="text-white max-w-2xl">
+                    <h1 class="text-5xl font-bold mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-fade-in-down" id="heroTitle">
+                        Your Happy Tail Starts at PawPal
+                    </h1>
+                    <p class="text-xl mb-8 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-fade-in-up" id="heroDesc">
+                        Where wagging tails meet loving homes. Discover your loyal companion ready for walks, cuddles, and a lifetime of doggy devotion.
+                    </p>
+                    
+                </div>
+            </div>
+          
+        </section>
+        <style>
+            
+          @keyframes fadeInDown {
+              0% {
+                  opacity: 0;
+                  transform: translateY(-20px);
+              }
+              100% {
+                  opacity: 1;
+                  transform: translateY(0);
+              }
+          }
+      
+          @keyframes fadeInUp {
+              0% {
+                  opacity: 0;
+                  transform: translateY(20px);
+              }
+              100% {
+                  opacity: 1;
+                  transform: translateY(0);
+              }
+          }
+      
+          @keyframes fadeIn {
+              0% {
+                  opacity: 0;
+              }
+              100% {
+                  opacity: 1;
+              }
+          }
+      
+          .animate-fade-in-down {
+              animation: fadeInDown 1s ease-out forwards;
+          }
+      
+          .animate-fade-in-up {
+              animation: fadeInUp 1s ease-out forwards;
+          }
+      
+          .animate-fade-in {
+              animation: fadeIn 1s ease-out forwards;
+          }
+      </style>
+  
+
+        <!-- Featured Dog Breeds Section -->
+        <section class="py-16 bg-gradient-to-b from-white via-purple-50/80 via-pink-50/50 via-blue-50/30 to-white" data-aos="fade-up">
+            <div class="max-w-7xl mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">Featured Dog Breeds</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8" data-aos="fade-up" data-aos-delay="200">
+                    <!-- Card for Labrador Retriever -->
+                 
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-right" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/2253275/pexels-photo-2253275.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                                 alt="Labrador Retriever">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Labrador Retriever</h3>
+                            <div class="text-primary font-bold mb-2">$399</div>
+                            <p class="text-gray-600 mb-4">Friendly, active, and outgoing. Great family dogs.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                        onclick="addToCart({
+                                            id: 'labrador-${Date.now()}',
+                                            name: 'Labrador Retriever',
+                                            price: 399,
+                                            quantity: 1
+                                        })">
+                                    Buy Now
+                                </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                                        onclick="showDogInfo('Labrador Retriever')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-up" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/351406/pexels-photo-351406.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                                 alt="German Shepherd">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">German Shepherd</h3>
+                            <div class="text-primary font-bold mb-2">$499</div>
+                            <p class="text-gray-600 mb-4">Loyal, confident, and courageous. Excellent working dogs.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                        onclick="addToCart({
+                                            id: 'german-shepherd-${Date.now()}',
+                                            name: 'German Shepherd',
+                                            price: 499,
+                                            quantity: 1
+                                        })">
+                                    Buy Now
+                                </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                                        onclick="showDogInfo('German Shepherd')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-left" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/776373/pexels-photo-776373.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                                 alt="Golden Retriever">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Golden Retriever</h3>
+                            <div class="text-primary font-bold mb-2">$599</div>
+                            <p class="text-gray-600 mb-4">Intelligent, friendly, and devoted. They are great family pets.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                        onclick="addToCart({
+                                            id: 'golden-retriever-${Date.now()}',
+                                            name: 'Golden Retriever',
+                                            price: 599,
+                                            quantity: 1
+                                        })">
+                                    Buy Now
+                                </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                                        onclick="showDogInfo('Golden Retriever')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-right" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/3930940/pexels-photo-3930940.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                                 alt="French Bulldog">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">French Bulldog</h3>
+                            <div class="text-primary font-bold mb-2">$399</div>
+                            <p class="text-gray-600 mb-4">Affectionate, playful, and adaptable. Perfect for apartment living</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                        onclick="addToCart({
+                                            id: 'french-bulldog-${Date.now()}',
+                                            name: 'French Bulldog',
+                                            price: 399,
+                                            quantity: 1
+                                        })">
+                                    Buy Now
+                                </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                                        onclick="showDogInfo('French Bulldog')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-up" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/1503537/pexels-photo-1503537.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                                 alt="Bulldog">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Bulldog</h3>
+                            <div class="text-primary font-bold mb-2">$399</div>
+                            <p class="text-gray-600 mb-4">Calm, courageous, and friendly. They have a distinctive wrinkled face.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                        onclick="addToCart({
+                                            id: 'bulldog-${Date.now()}',
+                                            name: 'Bulldog',
+                                            price: 399,
+                                            quantity: 1
+                                        })">
+                                    Buy Now
+                                </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                                        onclick="showDogInfo('Bulldog')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-left" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/373467/pexels-photo-373467.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                                 alt="Poodle">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Poodle</h3>
+                            <div class="text-primary font-bold mb-2">$399</div>
+                            <p class="text-gray-600 mb-4">Highly intelligent, active, and elegant. They come in three sizes: Standard, Miniature, and Toy.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                        onclick="addToCart({
+                                            id: 'poodle-${Date.now()}',
+                                            name: 'Poodle',
+                                            price: 399,
+                                            quantity: 1
+                                        })">
+                                    Buy Now
+                                </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                                        onclick="showDogInfo('Poodle')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-right" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/3764319/pexels-photo-3764319.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                                 alt="Beagle">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Beagle</h3>
+                            <div class="text-primary font-bold mb-2">$399</div>
+                            <p class="text-gray-600 mb-4">Curious, merry, and friendly. They have a great sense of smell.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                        onclick="addToCart({
+                                            id: 'beagle-${Date.now()}',
+                                            name: 'Beagle',
+                                            price: 399,
+                                            quantity: 1
+                                        })">
+                                    Buy Now
+                                </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                                        onclick="showDogInfo('Beagle')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-up" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/575735/pexels-photo-575735.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                                 alt="Rottweiler">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Rottweiler</h3>
+                            <div class="text-primary font-bold mb-2">$499</div>
+                            <p class="text-gray-600 mb-4">Confident, fearless, and loyal. They are excellent guard dogs.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                        onclick="addToCart({
+                                            id: 'rottweiler-${Date.now()}',
+                                            name: 'Rottweiler',
+                                            price: 499,
+                                            quantity: 1
+                                        })">
+                                    Buy Now
+                                </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                                        onclick="showDogInfo('Rottweiler')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-left" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/163602/dog-puppy-yorkshire-terrier-yorkshire-terrier-puppy-163602.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                                 alt="Yorkshire Terrier">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Yorkshire Terrier</h3>
+                            <div class="text-primary font-bold mb-2">$399</div>
+                            <p class="text-gray-600 mb-4">Bold, independent, and clever. They are small but full of personality.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                        onclick="addToCart({
+                                            id: 'yorkshire-terrier-${Date.now()}',
+                                            name: 'Yorkshire Terrier',
+                                            price: 399,
+                                            quantity: 1
+                                        })">
+                                    Buy Now
+                                </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                                        onclick="showDogInfo('Yorkshire Terrier')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-right" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/605496/pexels-photo-605496.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                                 alt="Boxer">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Boxer</h3>
+                            <div class="text-primary font-bold mb-2">$399</div>
+                            <p class="text-gray-600 mb-4">Playful, energetic, and loyal. They are great with children.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                        onclick="addToCart({
+                                            id: 'boxer-${Date.now()}',
+                                            name: 'Boxer',
+                                            price: 399,
+                                            quantity: 1
+                                        })">
+                                    Buy Now
+                                </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                                        onclick="showDogInfo('Boxer')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-up" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/1686790/pexels-photo-1686790.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="German Shepherd">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Dachshund</h3>
+                            <div class="text-primary font-bold mb-2">$399</div>
+                            <p class="text-gray-600 mb-4">Clever, lively, and courageous. They are known for their long bodies.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                onclick="addToCart({
+                                    id: 'Dachshund-${Date.now()}',
+                                    name: 'Dachshund',
+                                    price: 399,
+                                    quantity: 1
+                                })">
+                            Buy Now
+                        </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showDogInfo('Dachshund')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>   
+                  
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-left" data-aos-delay="600">
+                      <div class="h-64 overflow-hidden">
+                          <img src="https://images.pexels.com/photos/29207389/pexels-photo-29207389/free-photo-of-playful-shih-tzu-puppy-running-on-grass.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="German Shepherd">
+                      </div>
+                      <div class="p-6">
+                          <h3 class="text-xl font-semibold mb-2">Shih Tzu</h3>
+                          <div class="text-primary font-bold mb-2">$399</div>
+                          <p class="text-gray-600 mb-4">Affectionate, outgoing, and playful. They are great companion dogs.</p>
+                          <div class="flex gap-4">
+                            <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                            onclick="addToCart({
+                                id: 'Shih Tzu-${Date.now()}',
+                                name: 'Shih Tzu',
+                                price: 399,
+                                quantity: 1
+                            })">
+                        Buy Now
+                    </button>
+                              <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showDogInfo('Shih Tzu')">
+                                  <span class="relative z-10">Learn More</span>
+                                  <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                              </button>
+                          </div>
+                      </div>
+                  </div>  
+                  
+                  <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-right" data-aos-delay="600">
+                    <div class="h-64 overflow-hidden">
+                        <img src="https://images.pexels.com/photos/30401367/pexels-photo-30401367/free-photo-of-majestic-doberman-pinscher-in-lush-forest-setting.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="German Shepherd">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">Doberman Pinscher</h3>
+                        <div class="text-primary font-bold mb-2">$499</div>
+                        <p class="text-gray-600 mb-4">Loyal, fearless, and alert. They are excellent guard dogs.</p>
+                        <div class="flex gap-4">
+                            <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                            onclick="addToCart({
+                                id: 'Doberman Pinscher-${Date.now()}',
+                                name: 'Doberman Pinscher',
+                                price: 499,
+                                quantity: 1
+                            })">
+                        Buy Now
+                    </button>
+                            <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showDogInfo('Doberman Pinscher')">
+                                <span class="relative z-10">Learn More</span>
+                                <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                            </button>
+                        </div>
+                    </div>
+                  </div>
+                  
+                  <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-up" data-aos-delay="600">
+                    <div class="h-64 overflow-hidden">
+                        <img src="https://images.pexels.com/photos/20292579/pexels-photo-20292579/free-photo-of-an-australian-shepherd-standing-on-a-field-with-purple-heather.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="German Shepherd">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">Australian Shepherd</h3>
+                        <div class="text-primary font-bold mb-2">$499</div>
+                        <p class="text-gray-600 mb-4">Intelligent, energetic, and hardworking. They excel in herding.</p>
+                        <div class="flex gap-4">
+                            <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                            onclick="addToCart({
+                                id: 'Australian Shepherd-${Date.now()}',
+                                name: 'Australian Shepherd',
+                                price: 499,
+                                quantity: 1
+                            })">
+                        Buy Now
+                    </button>
+                            <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showDogInfo('Australian Shepherd')">
+                                <span class="relative z-10">Learn More</span>
+                                <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                            </button>
+                        </div>
+                    </div>
+                  </div>
+                  
+                  <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-left" data-aos-delay="600">
+                    <div class="h-64 overflow-hidden">
+                        <img src="https://images.pexels.com/photos/9809436/pexels-photo-9809436.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="German Shepherd">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">Siberian Husky</h3>
+                        <div class="text-primary font-bold mb-2">$499</div>
+                        <p class="text-gray-600 mb-4">Friendly, outgoing, and energetic. They love cold climates.</p>
+                        <div class="flex gap-4">
+                            <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                            onclick="addToCart({
+                                id: 'Siberian Husky-${Date.now()}',
+                                name: 'Siberian Husky',
+                                price: 499,
+                                quantity: 1
+                            })">
+                        Buy Now
+                    </button>
+                            <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showDogInfo('Siberian Husky')">
+                                <span class="relative z-10">Learn More</span>
+                                <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                            </button>
+                        </div>
+                    </div>
+                  </div>
+                    <!-- Add cards for the remaining breeds similarly -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Footer content from your index.html -->
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 PawParadise. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+ function toggleCart() {
+  const cartPopup = document.getElementById('cartPopup');
+  const overlay = document.getElementById('overlay');
+  cartPopup.classList.toggle('hidden');
+  overlay.classList.toggle('hidden');
+}
+        // Function to toggle mobile menu
+        function toggleMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+            } else {
+                console.error("Mobile menu element not found.");
+            }
+        }
+    
+        // Function to toggle search bar
+        function toggleSearch() {
+            const searchBar = document.getElementById('searchBar');
+            if (searchBar) {
+                searchBar.classList.toggle('hidden');
+            } else {
+                console.error("Search bar element not found.");
+            }
+        }
+    
+        // Function to show a popup message
+        function showPopup(title, message) {
+            const popup = document.createElement('div');
+            popup.className = 'fixed top-4 right-4 bg-white p-6 rounded-lg shadow-lg z-50';
+            popup.innerHTML = `
+                <h3 class="text-lg font-bold mb-2">${title}</h3>
+                <p class="text-gray-700">${message}</p>
+            `;
+            document.body.appendChild(popup);
+    
+            // Remove the popup after 3 seconds
+            setTimeout(() => {
+                popup.remove();
+            }, 3000);
+        }
+    
+        // Updated Learn More function
+        function showDogInfo(breed) {
+            const dogInfo = {
+                "Labrador Retriever": "Eager to please and full of boundless energy, Labradors thrive on adventure and are devoted family members. 🐾🎾",
+                "German Shepherd": "Highly trainable protectors, German Shepherds are known for their unwavering loyalty and confident presence. 🐾💪",
+                "Golden Retriever": "Sunshine in dog form, Golden Retrievers radiate warmth, patience, and a gentle spirit perfect for any home. 🐾☀️",
+                "French Bulldog": "Charming and comical companions, French Bulldogs bring a playful spirit and easygoing nature to city life. 🐾🏙️",
+                "Bulldog": "Dignified and sweet-natured, Bulldogs are known for their calm demeanor and affectionate, if sometimes stubborn, hearts. 🐾❤️",
+                "Poodle": "Brainy and athletic, Poodles are versatile dogs admired for their intelligence, hypoallergenic coats, and graceful movements. 🐾🐩",
+                "Beagle": "Joyful scent hounds, Beagles follow their noses with enthusiasm and charm everyone with their merry personalities. 🐾👃😊",
+                "Rottweiler": "Powerful and devoted guardians, Rottweilers are deeply loyal to their families and possess a noble strength. 🐾👑",
+                "Yorkshire Terrier": "Spirited little dynamos, Yorkshire Terriers are bold in spirit and bring big personalities to tiny frames. 🐾✨",
+                "Boxer": "Forever puppies at heart, Boxers are known for their playful exuberance, boundless energy, and loving clownishness. 🐾🤡",
+                "Dachshund": "Spunky and curious adventurers, Dachshunds with their distinctive shape are always ready for a lively pursuit. 🐾🚀",
+                "Shih Tzu": "Lovable lapdogs and charming companions, Shih Tzus thrive on affection and bring a touch of elegance to any home. 🐾🌸",
+                "Doberman Pinscher": "Elegant and watchful protectors, Dobermans combine striking looks with keen intelligence and unwavering devotion. 🐾👁️",
+                "Australian Shepherd": "Intelligent herding dynamos, Australian Shepherds are energetic, eager to work, and stunningly beautiful. 🐾🌈",
+                "Siberian Husky": "Free-spirited and energetic snow dogs, Siberian Huskies are known for their striking beauty and love of adventure in cold climates. 🐾🐺",
+            };
+    
+            if (dogInfo[breed]) {
+                showPopup(breed, dogInfo[breed]);
+            } else {
+                console.error("Dog breed not found in the list.");
+            }
+        }
+    
+        // Initialize AOS animations
+        if (typeof AOS !== 'undefined') {
+            AOS.init({
+                duration: 1000,
+                easing: 'ease-out',
+                once: true
+            });
+        } else {
+            console.error("AOS library not found.");
+        }
+    </script>
+</body>
+</html>

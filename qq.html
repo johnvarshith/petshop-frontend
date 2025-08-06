@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PawParadise - Your Pet Care Destination</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#8B5CF6',
+        secondary: '#6366F1'
+      },
+      borderRadius: {
+        'none': '0px',
+        'sm': '4px',
+        DEFAULT: '8px',
+        'md': '12px',
+        'lg': '16px',
+        'xl': '20px',
+        '2xl': '24px',
+        '3xl': '32px',
+        'full': '9999px',
+        'button': '8px'
+      }
+    }
+  }
+}
+</script>
+
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+.option-card:hover {
+  border-color: #8B5CF6;
+  background-color: rgba(139, 92, 246, 0.05);
+}
+.option-card.selected {
+  border-color: #8B5CF6;
+  background-color: rgba(139, 92, 246, 0.1);
+}
+.progress-bar {
+  transition: width 0.3s ease-in-out;
+}
+.fade-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.fade-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.pet-image-container {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  position: relative;
+}
+.pet-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+/* Spline Background Styles */
+spline-viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* Place it behind other content */
+
+}
+/* Hide the Spline branding */
+spline-viewer::part(branding) {
+  display: none !important;
+}
+
+/* Optional: Hide the loading animation if needed */
+spline-viewer::part(loader) {
+  display: none !important;
+}
+</style>
+</head>
+<body class="bg-white min-h-screen">
+  <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.72/build/spline-viewer.js"></script>
+  <spline-viewer url="https://prod.spline.design/0qiZdwLpZ4lv7xxE/scene.splinecode"></spline-viewer>
+  <header class="border-b">
+    <nav class="fixed top-0 w-full bg-white/80 backdrop-blur-sm shadow-sm z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center">
+            <a href="#" class="text-2xl font-['Pacifico'] text-primary flex items-center gap-2">
+              <span>PawPal</span>
+            </a>
+            <div class="hidden md:flex items-center space-x-8 ml-10">
+              <a href="pet.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Home</a>
+              <a href="aboutus.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">About Us</a>
+              <a href="dogs.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Dogs</a>
+              <a href="cats.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Cats</a>
+              <a href="pets.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Small pets</a>
+              <a href="products.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Products</a>
+              <a href="care.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Care</a>
+              <a href="qq.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Questionnaire</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+  <main class="pt-20"> <!-- Add padding-top to push content below the header -->
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Find Your Perfect Pet Match</h1>
+        <p class="text-lg text-gray-600">Answer a few questions to discover which pet breed best suits your lifestyle</p>
+      </div>
+      <div class="relative">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div id="questionContainer" class="space-y-8">
+          </div>
+          <div class="flex justify-center mt-8">
+            <button id="viewResultsBtn" class="px-8 py-4 bg-primary text-white rounded-button font-medium hover:bg-opacity-90 transition-colors cursor-pointer whitespace-nowrap">
+              View Results
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="resultsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+          <div class="text-center">
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">Your Perfect Pet Match</h3>
+            <div class="mb-6 pet-image-container" id="petImage">
+            </div>
+            <p class="text-lg text-gray-700 mb-4">Based on your answers, we recommend:</p>
+            <h4 class="text-xl font-semibold text-primary mb-2" id="petRecommendation"></h4>
+            <p class="text-gray-600 mb-6" id="petDescription"></p>
+            <div class="flex space-x-4 justify-center">
+              <button class="px-6 py-3 bg-primary text-white rounded-button font-medium hover:bg-opacity-90 transition-colors cursor-pointer whitespace-nowrap">View Details</button>
+              <button onclick="closeModal()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-button font-medium hover:bg-gray-300 transition-colors cursor-pointer whitespace-nowrap">Try Again</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const observer = new MutationObserver(() => {
+        const splineViewer = document.querySelector('spline-viewer');
+        if (splineViewer) {
+          const shadowRoot = splineViewer.shadowRoot;
+          const brandingElement = shadowRoot.querySelector('.branding');
+          if (brandingElement) {
+            brandingElement.remove();
+            observer.disconnect(); // Stop observing once removed
+          }
+        }
+      });
+  
+      // Start observing the document for changes
+      observer.observe(document.body, { childList: true, subtree: true });
+    });
+  </script>
+ 
+<script>
+// Pet breed lists
+const petBreeds = {
+  dog: ["German Shepherd", "Golden Retriever", "Bulldog", "Shih Tzu", "Poodle"],
+  cat: ["American Shorthair", "Birman", "Siamese", "Persian"],
+  small: ["Hamster", "Fish", "Bird", "Sugar Glider", "Rabbit", "Turtle"]
+};
+
+// Pet descriptions
+const petDescriptions = {
+  "German Shepherd": "Loyal, intelligent, and versatile. Great for active families and experienced owners.",
+  "Golden Retriever": "Friendly, reliable, and great with children. Perfect for active households.",
+  "Bulldog": "Docile, friendly, and great for apartments. Low exercise needs but requires some grooming.",
+  "Shih Tzu": "Affectionate, playful companion dog. Great for families and apartment living.",
+  "Poodle": "Highly intelligent and trainable. Low-shedding and good for people with allergies.",
+  
+  "American Shorthair": "Easy-going, adaptable, and low-maintenance. Great for first-time cat owners.",
+  "Birman": "Gentle, affectionate, and moderately active. Beautiful blue eyes and color-point coat.",
+  "Siamese": "Vocal, intelligent, and very social. Requires lots of interaction and attention.",
+  "Persian": "Sweet, gentle, and quiet. Requires daily grooming for their long, luxurious coat.",
+  
+  "Hamster": "Low-maintenance, small space requirements. Great for beginners and children.",
+  "Fish": "Peaceful, calming pets. Perfect for those with limited space or allergies.",
+  "Bird": "Social, interactive pets with personality. Some species can learn to talk.",
+  "Sugar Glider": "Exotic, social pets that bond closely with owners. Require specialized care.",
+  "Rabbit": "Quiet, gentle pets that can be litter-trained. Need moderate space to exercise.",
+  "Turtle": "Long-lived, low-maintenance pets. Perfect for those seeking a long-term companion."
+};
+
+// Pet images
+const petImages = {
+  "German Shepherd": "https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?q=80&w=500&auto=format&fit=crop",
+  "Golden Retriever": "https://images.pexels.com/photos/2123773/pexels-photo-2123773.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop",
+  "Bulldog": "https://images.pexels.com/photos/164446/pexels-photo-164446.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+  "Shih Tzu": "https://images.pexels.com/photos/130770/pexels-photo-130770.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+  "Poodle": "https://images.pexels.com/photos/1057044/pexels-photo-1057044.jpeg?auto=compress&cs=tinysrgb&w=600",
+  
+  "American Shorthair": "https://images.pexels.com/photos/479009/pexels-photo-479009.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+  "Birman": "https://images.pexels.com/photos/2064780/pexels-photo-2064780.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+  "Siamese": "https://images.pexels.com/photos/171227/pexels-photo-171227.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+  "Persian": "https://images.pexels.com/photos/1644767/pexels-photo-1644767.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+  
+  "Hamster": "https://images.pexels.com/photos/3362697/pexels-photo-3362697.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+  "Fish": "https://images.pexels.com/photos/2156311/pexels-photo-2156311.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+  "Bird": "https://images.pexels.com/photos/349758/hummingbird-bird-birds-349758.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+  "Sugar Glider": "https://images.pexels.com/photos/9516935/pexels-photo-9516935.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+  "Rabbit": "https://images.pexels.com/photos/6845638/pexels-photo-6845638.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+  "Turtle": "https://images.pexels.com/photos/789141/pexels-photo-789141.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+};
+
+let currentPetType = '';
+const petTypeQuestions = [
+  {
+    text: "What type of pet are you interested in?",
+    options: ["Dog", "Cat", "Small Animal (Hamster/Rabbit/Bird)"]
+  }
+];
+
+const dogQuestions = [
+  {
+    text: "What size dog would you prefer?",
+    options: ["Small (under 20 lbs)", "Medium (20-50 lbs)", "Large (over 50 lbs)"]
+  },
+  {
+    text: "How much exercise can you provide daily?",
+    options: ["Short walks", "1-2 hour walks/play", "Very active, 2+ hours"]
+  },
+  {
+    text: "What's your grooming commitment level?",
+    options: ["Minimal grooming", "Regular brushing", "Daily grooming okay"]
+  },
+  {
+    text: "What's your experience with dogs?",
+    options: ["First-time owner", "Some experience", "Very experienced"]
+  },
+  {
+    text: "What's your living situation?",
+    options: ["Apartment", "House with small yard", "House with large yard"]
+  }
+];
+
+const catQuestions = [
+  {
+    text: "Do you prefer an indoor or outdoor cat?",
+    options: ["Strictly indoor", "Indoor with outdoor access", "Mainly outdoor"]
+  },
+  {
+    text: "What type of cat personality do you prefer?",
+    options: ["Independent", "Moderately social", "Very affectionate"]
+  },
+  {
+    text: "How do you feel about cat hair?",
+    options: ["Prefer minimal shedding", "Don't mind some shedding", "Hair doesn't bother me"]
+  },
+  {
+    text: "What age cat are you looking for?",
+    options: ["Kitten", "Young adult", "Senior cat"]
+  },
+  {
+    text: "How active of a cat do you want?",
+    options: ["Calm and relaxed", "Moderately playful", "Very energetic"]
+  }
+];
+
+const smallPetQuestions = [
+  {
+    text: "How much space can you dedicate to a habitat?",
+    options: ["Small cage/tank", "Medium enclosure", "Large habitat"]
+  },
+  {
+    text: "What's your preferred pet lifespan?",
+    options: ["2-3 years", "5-10 years", "10+ years"]
+  },
+  {
+    text: "How much daily interaction can you provide?",
+    options: ["30 minutes", "1-2 hours", "3+ hours"]
+  },
+  {
+    text: "What's your noise tolerance?",
+    options: ["Silent pets only", "Occasional noise okay", "Don't mind regular noise"]
+  },
+  {
+    text: "What's your cleaning commitment level?",
+    options: ["Weekly cleaning", "Every few days", "Daily maintenance"]
+  }
+];
+
+let questions = petTypeQuestions;
+const questionContainer = document.getElementById('questionContainer');
+const viewResultsBtn = document.getElementById('viewResultsBtn');
+
+function renderQuestions() {
+  questionContainer.innerHTML = questions.map((question, qIndex) => `
+    <div class="question-section">
+      <h2 class="text-xl font-semibold text-gray-900 mb-6">Question ${qIndex + 1}: ${question.text}</h2>
+      <div class="space-y-4">
+        ${question.options.map((option, oIndex) => `
+          <div class="option-card cursor-pointer p-4 border-2 rounded-lg flex items-center">
+            <input type="radio" name="q${qIndex}" value="${oIndex}" class="hidden">
+            <span class="text-gray-800">${option}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  
+  const options = document.querySelectorAll('.option-card');
+  options.forEach(option => {
+    option.addEventListener('click', () => {
+      const siblings = option.parentElement.querySelectorAll('.option-card');
+      siblings.forEach(o => o.classList.remove('selected'));
+      option.classList.add('selected');
+      option.querySelector('input').checked = true;
+      
+      if (questions === petTypeQuestions) {
+        const selectedOption = option.querySelector('span').textContent;
+        switch(selectedOption) {
+          case 'Dog':
+            questions = dogQuestions;
+            currentPetType = 'dog';
+            break;
+          case 'Cat':
+            questions = catQuestions;
+            currentPetType = 'cat';
+            break;
+          case 'Small Animal (Hamster/Rabbit/Bird)':
+            questions = smallPetQuestions;
+            currentPetType = 'small';
+            break;
+        }
+        renderQuestions();
+      }
+    });
+  });
+}
+
+// Function to determine the best pet based on answers
+function determineBestPet(petType, answers) {
+  if (petType === 'dog') {
+    // Size preference (q0)
+    const sizePreference = answers[0];
+    // Exercise commitment (q1)
+    const exerciseCommitment = answers[1];
+    // Grooming commitment (q2)
+    const groomingCommitment = answers[2];
+    // Experience level (q3)
+    const experienceLevel = answers[3];
+    // Living situation (q4)
+    const livingSituation = answers[4];
+    
+    // Logic for dog recommendations
+    if (sizePreference === 0) { // Small dog
+      if (groomingCommitment === 2) { // High grooming
+        return "Shih Tzu";
+      } else {
+        return "Poodle"; // Small poodle varieties
+      }
+    } else if (sizePreference === 1) { // Medium dog
+      if (exerciseCommitment >= 1) { // Medium to high exercise
+        return "Bulldog";
+      } else {
+        return "Poodle"; // Medium poodle varieties
+      }
+    } else { // Large dog
+      if (experienceLevel === 2 && exerciseCommitment === 2) { // Very experienced and active
+        return "German Shepherd";
+      } else {
+        return "Golden Retriever"; // More forgiving large breed
+      }
+    }
+  } else if (petType === 'cat') {
+    // Indoor/outdoor preference (q0)
+    const indoorOutdoor = answers[0];
+    // Personality preference (q1)
+    const personalityPreference = answers[1];
+    // Shedding tolerance (q2)
+    const sheddingTolerance = answers[2];
+    // Age preference (q3)
+    const agePreference = answers[3];
+    // Activity level (q4)
+    const activityLevel = answers[4];
+    
+    // Logic for cat recommendations
+    if (personalityPreference === 0) { // Independent
+      return "American Shorthair";
+    } else if (personalityPreference === 2) { // Very affectionate
+      if (sheddingTolerance === 0) { // Low shedding tolerance
+        return "Siamese";
+      } else {
+        return "Birman";
+      }
+    } else { // Moderately social
+      if (sheddingTolerance === 2 && activityLevel === 0) { // High shedding tolerance and calm
+        return "Persian";
+      } else {
+        return "American Shorthair"; // Good all-around cat
+      }
+    }
+  } else { // Small pets
+    // Space availability (q0)
+    const spaceAvailability = answers[0];
+    // Lifespan preference (q1)
+    const lifespanPreference = answers[1];
+    // Interaction time (q2)
+    const interactionTime = answers[2];
+    // Noise tolerance (q3)
+    const noiseTolerance = answers[3];
+    // Cleaning commitment (q4)
+    const cleaningCommitment = answers[4];
+    
+    // Logic for small pet recommendations
+    if (noiseTolerance === 0) { // Silent pets only
+      if (interactionTime === 0) { // Low interaction
+        return "Fish";
+      } else {
+        return "Turtle";
+      }
+    } else if (lifespanPreference === 0) { // Short lifespan
+      return "Hamster";
+    } else if (interactionTime === 2) { // High interaction
+      if (noiseTolerance === 2) { // High noise tolerance
+        return "Bird";
+      } else {
+        return "Sugar Glider";
+      }
+    } else if (spaceAvailability === 2) { // Large habitat
+      return "Rabbit";
+    } else {
+      return "Hamster"; // Good starter pet
+    }
+  }
+}
+
+viewResultsBtn.addEventListener('click', () => {
+  const allQuestionsAnswered = Array.from({length: questions.length}, (_, i) =>
+    document.querySelector(`input[name="q${i}"]:checked`)
+  ).every(Boolean);
+  
+  if (!allQuestionsAnswered) {
+    const notification = document.createElement('div');
+    notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg fade-enter z-50';
+    notification.textContent = 'Please answer all questions before viewing results';
+    document.body.appendChild(notification);
+    setTimeout(() => {
+      notification.classList.add('fade-enter-active');
+    }, 10);
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+    return;
+  }
+  
+  // Collect all answers
+  const answers = Array.from({length: questions.length}, (_, i) => 
+    parseInt(document.querySelector(`input[name="q${i}"]:checked`).value)
+  );
+  
+  // Determine the best pet based on answers
+  const recommendedPet = determineBestPet(currentPetType, answers);
+  
+  // Get the image and description for the recommended pet
+  const petImage = petImages[recommendedPet];
+  const petDescription = petDescriptions[recommendedPet];
+  
+  // Update the modal with the recommendation
+  document.getElementById('petImage').innerHTML = `<img src="${petImage}" alt="${recommendedPet}">`;
+  document.getElementById('petRecommendation').textContent = recommendedPet;
+  document.getElementById('petDescription').textContent = petDescription;
+  document.getElementById('resultsModal').classList.remove('hidden');
+});
+
+function closeModal() {
+  document.getElementById('resultsModal').classList.add('hidden');
+  // Reset to first question
+  questions = petTypeQuestions;
+  currentPetType = '';
+  renderQuestions();
+  document.querySelectorAll('.option-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  document.querySelectorAll('input[type="radio"]').forEach(input => {
+    input.checked = false;
+  });
+}
+
+renderQuestions();
+</script>
+</main>
+</body>
+</html>

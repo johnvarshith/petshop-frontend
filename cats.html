@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawPal - Your One-Stop Pet Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <script src="/common.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#8B5CF6',
+                        secondary: '#F59E0B'
+                    },
+                    borderRadius: {
+                        'none': '0px',
+                        'sm': '8px',
+                        DEFAULT: '12px',
+                        'md': '16px',
+                        'lg': '20px',
+                        'xl': '24px',
+                        '2xl': '28px',
+                        '3xl': '32px',
+                        'full': '9999px',
+                        'button': '12px'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .cart-popup.show {
+transform: translateX(0);
+opacity: 1;
+visibility: visible;
+}
+
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .pop-on-hover:hover {
+            animation: pop 0.3s ease-in-out;
+        }
+
+      
+        @keyframes smoothBounce {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-4px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .hover\:animate-bounce-smooth:hover {
+            animation: smoothBounce 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-white via-purple-50/80 via-pink-50/50 via-blue-50/30 to-white">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/80 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="#" class="text-2xl font-['Pacifico'] text-primary flex items-center gap-2">
+                       
+                        <span>PawPal</span>
+                    </a>
+                    <div class="hidden md:flex items-center space-x-8 ml-10">
+                        <a href="pet.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Home</a>
+                        <a href="aboutus.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">About Us</a>
+                        <a href="dogs.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Dogs</a>
+                        <a href="cats.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Cats</a>
+                        <a href="pets.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Small pets</a>
+                        <a href="products.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Products</a>
+                        <a href="care.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Care</a>
+                        <a href="qq.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">questionaire</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <!-- Search Bar -->
+                    <div id="searchBar" class="hidden items-center border border-gray-300 bg-white rounded-md px-2 h-8">
+                        <input type="text" class="w-40 text-sm outline-none" placeholder="Search...">
+                        <button onclick="toggleSearch()" class="ml-2 text-gray-600 text-sm">✖</button>
+                    </div>
+                    <!-- Search Button -->
+                    <button class="w-10 h-10 flex items-center justify-center" onclick="toggleSearch()">
+                        <i class="ri-search-line text-xl"></i>
+                    </button>
+  <!-- Cart Button -->
+  <button onclick="toggleCart()" class="relative p-2">
+    🛒 Cart
+    <span id="cartCount" class="absolute -top-1 -right-1 bg-primary text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+        0
+    </span>
+</button>            <button class="w-10 h-10 flex items-center justify-center md:hidden" onclick="toggleMenu()">
+                        <i class="ri-menu-line text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+         <!-- Cart Popup -->
+     <!-- Cart Popup -->
+<div id="cartPopup" class="fixed top-16 right-4 bg-white rounded-lg shadow-lg p-6 w-96 hidden z-50">
+    <h3 class="text-xl font-bold mb-4">Your Cart</h3>
+    <div id="cartItems" class="space-y-4 max-h-96 overflow-y-auto">
+      <!-- Cart items will be dynamically added here -->
+    </div>
+    <div class="mt-6">
+      <p class="text-lg font-bold">Total: $<span id="cartTotal">0.00</span></p>
+    </div>
+    <div class="mt-4 flex gap-4">
+      <button onclick="checkout()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-all flex-1">
+        Checkout
+      </button>
+    
+      <button onclick="toggleCart()" class="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-all">
+        Close
+      </button>
+    </div>
+  </div>
+   <!-- Mobile Navigation Menu -->
+<div id="mobileMenu" class="hidden fixed top-0 left-0 w-full h-full bg-white p-6 flex flex-col items-center shadow-lg transform transition-transform duration-300 ease-in-out -translate-x-full">
+    <button onclick="toggleMenu()" class="self-end text-gray-600 text-2xl hover:text-gray-900 transition-colors duration-200">✖</button>
+    <nav class="mt-6 w-full text-center space-y-4">
+        <a href="pet.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Home</a>
+        <a href="aboutus.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">About</a>
+        <a href="dogs.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Dogs</a>
+        <a href="cats.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Cats</a>
+        <a href="pets.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Small Pets</a>
+        <a href="products.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Products</a>
+        <a href="care.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Care</a>
+    </nav>
+  </div>
+  
+  <script>
+  function toggleMenu() {
+    const menu = document.getElementById('mobileMenu');
+    menu.classList.toggle('hidden');
+    menu.classList.toggle('translate-x-0');
+  }
+  </script>
+    <!-- Main Content -->
+    <main class="mt-16">
+        <!-- Hero Section -->
+        <section class="relative h-[600px] bg-cover bg-center animate-float" style="background-image: url('https://images.pexels.com/photos/1386422/pexels-photo-1386422.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2')">
+            <div class="absolute inset-0 bg-black bg-opacity-70 z-10"></div>
+            <div class="relative max-w-7xl mx-auto px-4 h-full flex items-center z-20" id="heroContent">
+                <div class="text-white max-w-2xl">
+                    <h1 class="text-5xl font-bold mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-fade-in-down" id="heroTitle">
+                        Your Happy Purrs Start at PawPal
+                    </h1>
+                    <p class="text-xl mb-8 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-fade-in-up" id="heroDesc">
+                        Bringing together hearts and felines. Find your feline soulmate and start a journey filled with happy meows, gentle nudges, and unwavering companionship.
+                    </p>
+                   
+                </div>
+            </div>
+        </section>
+        <style>
+          @keyframes fadeInDown {
+              0% {
+                  opacity: 0;
+                  transform: translateY(-20px);
+              }
+              100% {
+                  opacity: 1;
+                  transform: translateY(0);
+              }
+          }
+      
+          @keyframes fadeInUp {
+              0% {
+                  opacity: 0;
+                  transform: translateY(20px);
+              }
+              100% {
+                  opacity: 1;
+                  transform: translateY(0);
+              }
+          }
+      
+          @keyframes fadeIn {
+              0% {
+                  opacity: 0;
+              }
+              100% {
+                  opacity: 1;
+              }
+          }
+      
+          .animate-fade-in-down {
+              animation: fadeInDown 1s ease-out forwards;
+          }
+      
+          .animate-fade-in-up {
+              animation: fadeInUp 1s ease-out forwards;
+          }
+      
+          .animate-fade-in {
+              animation: fadeIn 1s ease-out forwards;
+          }
+      </style>
+  
+
+        <!-- Featured Dog Breeds Section -->
+        <section class="py-16 bg-gradient-to-b from-white via-purple-50/80 via-pink-50/50 via-blue-50/30 to-white" data-aos="fade-up">
+            <div class="max-w-7xl mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">Featured cat Breeds</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8" data-aos="fade-up" data-aos-delay="200">
+                    <!-- Card for Labrador Retriever -->
+                 
+                  <!-- Abyssinian Card -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-right" data-aos-delay="600">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/10409730/pexels-photo-10409730.jpeg?auto=compress&cs=tinysrgb&w=600" 
+             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+             alt="Abyssinian">
+    </div>
+    <div class="p-6">
+        <h3 class="text-xl font-semibold mb-2">Abyssinian</h3>
+        <div class="text-primary font-bold mb-2">$299</div>
+        <p class="text-gray-600 mb-4">Highly intelligent and active, Abyssinians are known for their curiosity and playful nature</p>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                    onclick="addToCart({
+                        id: 'abyssinian-${Date.now()}',
+                        name: 'Abyssinian',
+                        price: 299,
+                        quantity: 1
+                    })">
+                Buy Now
+            </button>
+            <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                    onclick="showCatInfo('Abyssinian')">
+                <span class="relative z-10">Learn More</span>
+                <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- American Shorthair Card -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-up" data-aos-delay="600">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/7726083/pexels-photo-7726083.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+             alt="American Shorthair">
+    </div>
+    <div class="p-6">
+        <h3 class="text-xl font-semibold mb-2">American Shorthair</h3>
+        <div class="text-primary font-bold mb-2">$399</div>
+        <p class="text-gray-600 mb-4">Easygoing and adaptable, American Shorthairs are known for their gentle and affectionate</p>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                    onclick="addToCart({
+                        id: 'american-shorthair-${Date.now()}',
+                        name: 'American Shorthair',
+                        price: 399,
+                        quantity: 1
+                    })">
+                Buy Now
+            </button>
+            <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                    onclick="showCatInfo('American Shorthair')">
+                <span class="relative z-10">Learn More</span>
+                <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Birman Card -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-left" data-aos-delay="600">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/6456287/pexels-photo-6456287.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+             alt="Birman">
+    </div>
+    <div class="p-6">
+        <h3 class="text-xl font-semibold mb-2">Birman</h3>
+        <div class="text-primary font-bold mb-2">$499</div>
+        <p class="text-gray-600 mb-4">Gentle and affectionate, Birmans are known for their striking blue eyes and loving personalities</p>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                    onclick="addToCart({
+                        id: 'birman-${Date.now()}',
+                        name: 'Birman',
+                        price: 499,
+                        quantity: 1
+                    })">
+                Buy Now
+            </button>
+            <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                    onclick="showCatInfo('Birman')">
+                <span class="relative z-10">Learn More</span>
+                <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- British Shorthair Card -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-right" data-aos-delay="600">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/162287/cat-british-shorthair-bkh-thoroughbred-162287.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+             alt="British Shorthair">
+    </div>
+    <div class="p-6">
+        <h3 class="text-xl font-semibold mb-2">British Shorthair</h3>
+        <div class="text-primary font-bold mb-2">$299</div>
+        <p class="text-gray-600 mb-4">Calm and independent, British Shorthairs are known for their round faces and easygoing nature</p>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                    onclick="addToCart({
+                        id: 'british-shorthair-${Date.now()}',
+                        name: 'British Shorthair',
+                        price: 299,
+                        quantity: 1
+                    })">
+                Buy Now
+            </button>
+            <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                    onclick="showCatInfo('British Shorthair')">
+                <span class="relative z-10">Learn More</span>
+                <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Burmese Card -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-up" data-aos-delay="600">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/9178597/pexels-photo-9178597.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+             alt="Burmese">
+    </div>
+    <div class="p-6">
+        <h3 class="text-xl font-semibold mb-2">Burmese</h3>
+        <div class="text-primary font-bold mb-2">$299</div>
+        <p class="text-gray-600 mb-4">Affectionate and playful, Burmese cats are social and enjoy being part of the family</p>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                    onclick="addToCart({
+                        id: 'burmese-${Date.now()}',
+                        name: 'Burmese',
+                        price: 299,
+                        quantity: 1
+                    })">
+                Buy Now
+            </button>
+            <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                    onclick="showCatInfo('Burmese')">
+                <span class="relative z-10">Learn More</span>
+                <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Chartreux Card -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-left" data-aos-delay="600">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/28577751/pexels-photo-28577751/free-photo-of-close-up-portrait-of-a-gray-cat-with-green-eyes.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+             alt="Chartreux">
+    </div>
+    <div class="p-6">
+        <h3 class="text-xl font-semibold mb-2">Chartreux</h3>
+        <div class="text-primary font-bold mb-2">$299</div>
+        <p class="text-gray-600 mb-4">Quiet and gentle, Chartreux cats are known for their woolly blue coat and calm demeanor</p>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                    onclick="addToCart({
+                        id: 'chartreux-${Date.now()}',
+                        name: 'Chartreux',
+                        price: 299,
+                        quantity: 1
+                    })">
+                Buy Now
+            </button>
+            <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                    onclick="showCatInfo('Chartreux')">
+                <span class="relative z-10">Learn More</span>
+                <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Devon Rex Card -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-right" data-aos-delay="600">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1606830962409-6d3f8a4b46b1?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+             alt="Devon Rex">
+    </div>
+    <div class="p-6">
+        <h3 class="text-xl font-semibold mb-2">Devon Rex</h3>
+        <div class="text-primary font-bold mb-2">$299</div>
+        <p class="text-gray-600 mb-4">Mischievous and outgoing, Devon Rex cats are known for their elfin faces</p>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                    onclick="addToCart({
+                        id: 'devon-rex-${Date.now()}',
+                        name: 'Devon Rex',
+                        price: 299,
+                        quantity: 1
+                    })">
+                Buy Now
+            </button>
+            <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                    onclick="showCatInfo('Devon Rex')">
+                <span class="relative z-10">Learn More</span>
+                <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Russian Blue Card -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-up" data-aos-delay="600">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/17987991/pexels-photo-17987991/free-photo-of-cat-on-grass.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+             alt="Russian Blue">
+    </div>
+    <div class="p-6">
+        <h3 class="text-xl font-semibold mb-2">Russian Blue</h3>
+        <div class="text-primary font-bold mb-2">$299</div>
+        <p class="text-gray-600 mb-4">Intelligent and reserved, Russian Blues are known for their striking silver-blue coat</p>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                    onclick="addToCart({
+                        id: 'russian-blue-${Date.now()}',
+                        name: 'Russian Blue',
+                        price: 299,
+                        quantity: 1
+                    })">
+                Buy Now
+            </button>
+            <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                    onclick="showCatInfo('Russian Blue')">
+                <span class="relative z-10">Learn More</span>
+                <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Siamese Card -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-left" data-aos-delay="600">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/979247/pexels-photo-979247.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+             alt="Siamese">
+    </div>
+    <div class="p-6">
+        <h3 class="text-xl font-semibold mb-2">Siamese</h3>
+        <div class="text-primary font-bold mb-2">$599</div>
+        <p class="text-gray-600 mb-4">Vocal and intelligent, Siamese cats are known for their striking blue almond-shaped eyes</p>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                    onclick="addToCart({
+                        id: 'siamese-${Date.now()}',
+                        name: 'Siamese',
+                        price: 599,
+                        quantity: 1
+                    })">
+                Buy Now
+            </button>
+            <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" 
+                    onclick="showCatInfo('Siamese')">
+                <span class="relative z-10">Learn More</span>
+                <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+            </button>
+        </div>
+    </div>
+</div>
+      
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-right" data-aos-delay="600">
+        <div class="h-64 overflow-hidden">
+            <img src="https://images.pexels.com/photos/17330855/pexels-photo-17330855/free-photo-of-close-up-of-sphynx-cat.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="German Shepherd">
+        </div>
+        <div class="p-6">
+            <h3 class="text-xl font-semibold mb-2">Sphynx</h3>
+            <div class="text-primary font-bold mb-2">$499</div>
+            <p class="text-gray-600 mb-4">ocial and energetic, Sphynx cats are known for their hairless appearance and affectionate</p>
+            <div class="flex gap-4">
+                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                onclick="addToCart({
+                    id: 'Sphynx-${Date.now()}',
+                    name: 'Sphynx',
+                    price: 499,
+                    quantity: 1
+                })">
+            Buy Now
+        </button>
+                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showCatInfo('Sphynx')">
+                    <span class="relative z-10">Learn More</span>
+                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                </button>
+            </div>
+        </div>
+    </div>   
+  
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-up" data-aos-delay="600">
+      <div class="h-64 overflow-hidden">
+          <img src="https://images.pexels.com/photos/1644767/pexels-photo-1644767.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="German Shepherd">
+      </div>
+      <div class="p-6">
+          <h3 class="text-xl font-semibold mb-2">Persian</h3>
+          <div class="text-primary font-bold mb-2">$999</div>
+          <p class="text-gray-600 mb-4">Sweet and docile, Persians are known for their luxurious long coat and calm, gentle temperament</p>
+          <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+            onclick="addToCart({
+                id: 'Persian-${Date.now()}',
+                name: 'Persian',
+                price: 999,
+                quantity: 1
+            })">
+        Buy Now
+    </button>
+              <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showCatInfo('Persian')">
+                  <span class="relative z-10">Learn More</span>
+                  <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+              </button>
+          </div>
+      </div>
+  </div>   
+
+  <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-left" data-aos-delay="600">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/126407/pexels-photo-126407.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="German Shepherd">
+    </div>
+    <div class="p-6">
+        <h3 class="text-xl font-semibold mb-2">Norwegian Forest Cat</h3>
+        <div class="text-primary font-bold mb-2">$699</div>
+        <p class="text-gray-600 mb-4">Adaptable and gentle, Norwegian Forest Cats are known for their hardy nature and beautiful, thick coat</p>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+            onclick="addToCart({
+                id: 'Norwegian Forest Cat-${Date.now()}',
+                name: 'Norwegian Forest Cat',
+                price: 699,
+                quantity: 1
+            })">
+        Buy Now
+    </button>
+            <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showCatInfo('Norwegian Forest Cat')">
+                <span class="relative z-10">Learn More</span>
+                <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+            </button>
+        </div>
+    </div>
+</div>  
+
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-right" data-aos-delay="600">
+  <div class="h-64 overflow-hidden">
+      <img src="https://images.pexels.com/photos/15097814/pexels-photo-15097814/free-photo-of-photo-of-a-cat.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="German Shepherd">
+  </div>
+  <div class="p-6">
+      <h3 class="text-xl font-semibold mb-2">Egyptian Mau</h3>
+      <div class="text-primary font-bold mb-2">$499</div>
+      <p class="text-gray-600 mb-4">Intelligent and active, Egyptian Maus are known for their spotted coat and loyal, devoted nature</p>
+      <div class="flex gap-4">
+        <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+        onclick="addToCart({
+            id: 'Egyptian Mau-${Date.now()}',
+            name: 'Egyptian Mau',
+            price: 499,
+            quantity: 1
+        })">
+    Buy Now
+</button>
+          <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showCatInfo('Egyptian Mau')">
+              <span class="relative z-10">Learn More</span>
+              <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+          </button>
+      </div>
+  </div>
+</div>
+
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-up" data-aos-delay="600">
+  <div class="h-64 overflow-hidden">
+      <img src="https://images.pexels.com/photos/1666531/pexels-photo-1666531.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="German Shepherd">
+  </div>
+  <div class="p-6">
+      <h3 class="text-xl font-semibold mb-2">Scottish Fold</h3>
+      <div class="text-primary font-bold mb-2">$399</div>
+      <p class="text-gray-600 mb-4">Sweet and adaptable, Scottish Folds are known for their folded ears and gentle, playful personalities</p>
+      <div class="flex gap-4">
+        <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+        onclick="addToCart({
+            id: 'Scottish Fold-${Date.now()}',
+            name: 'Scottish Fold',
+            price: 399,
+            quantity: 1
+        })">
+    Buy Now
+</button>
+          <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showCatInfo('Scottish Fold')">
+              <span class="relative z-10">Learn More</span>
+              <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+          </button>
+      </div>
+  </div>
+</div>
+
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-left" data-aos-delay="600">
+  <div class="h-64 overflow-hidden">
+      <img src="https://images.pexels.com/photos/7790029/pexels-photo-7790029.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="German Shepherd">
+  </div>
+  <div class="p-6">
+      <h3 class="text-xl font-semibold mb-2">Maine Coon</h3>
+      <div class="text-primary font-bold mb-2">$599</div>
+      <p class="text-gray-600 mb-4">Gentle giants, Maine Coons are known for their large size, shaggy coat, and friendly, playful nature</p>
+      <div class="flex gap-4">
+        <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+        onclick="addToCart({
+            id: 'Maine Coon-${Date.now()}',
+            name: 'Maine Coon',
+            price: 599,
+            quantity: 1
+        })">
+    Buy Now
+</button>
+          <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showCatInfo('Maine Coon')">
+              <span class="relative z-10">Learn More</span>
+              <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+          </button>
+      </div>
+  </div>
+</div>
+                    <!-- Add cards for the remaining breeds similarly -->
+                </div>
+            </div>
+        </section>
+    </main>
+    
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Footer content from your index.html -->
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 PawParadise. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+ function toggleCart() {
+  const cartPopup = document.getElementById('cartPopup');
+  const overlay = document.getElementById('overlay');
+  cartPopup.classList.toggle('hidden');
+  overlay.classList.toggle('hidden');
+}
+       // Function to toggle mobile menu
+       function toggleMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+            } else {
+                console.error("Mobile menu element not found.");
+            }
+        }
+    
+        // Function to toggle search bar
+        function toggleSearch() {
+            const searchBar = document.getElementById('searchBar');
+            if (searchBar) {
+                searchBar.classList.toggle('hidden');
+            } else {
+                console.error("Search bar element not found.");
+            }
+        }
+    
+        // Function to show a popup message
+        function showPopup(title, message) {
+            const popup = document.createElement('div');
+            popup.className = 'fixed top-4 right-4 bg-white p-6 rounded-lg shadow-lg z-50';
+            popup.innerHTML = `
+                <h3 class="text-lg font-bold mb-2">${title}</h3>
+                <p class="text-gray-700">${message}</p>
+            `;
+            document.body.appendChild(popup);
+    
+            // Remove the popup after 3 seconds
+            setTimeout(() => {
+                popup.remove();
+            }, 3000);
+        }
+        // Updated Learn More function
+        function showCatInfo(breed) {
+    const catInfo = {
+        "Abyssinian": "Highly intelligent and active, Abyssinians are known for their curiosity and playful nature. 🐾😺", //Kept original for Abyssinian - example
+        "American Shorthair": "Easygoing and adaptable, American Shorthairs are known for their gentle and affectionate nature. 🐾🏡", //Kept original for American Shorthair - example
+        "Bengal": "Energetic and playful, Bengals are striking cats known for their wild appearance and adventurous spirit. 🐾🐆", // Added Bengal based on earlier list, assuming this is a desired addition
+        "Birman": "Gentle and affectionate, Birmans are known for their striking blue eyes and loving personalities. 🐾💙", //Kept original for Birman - example
+        "Bombay": "Social and affectionate, Bombay cats are known for their sleek black coat and dog-like loyalty. 🐾🖤", // Added Bombay based on earlier list
+        "British Shorthair": "Calm and independent, British Shorthairs are known for their round faces and easygoing nature. 🐾😌", //Kept original for British Shorthair - example
+        "Burmese": "Affectionate and playful, Burmese cats are social and enjoy being part of the family. 🐾👨‍👩‍👧‍👦", //Kept original for Burmese - example
+        "Chartreux": "Quiet and gentle, Chartreux cats are known for their woolly blue coat and calm demeanor. 🐾🔵", //Kept original for Chartreux - example
+        "Cornish Rex": "Active and intelligent, Cornish Rex cats are known for their wavy coat and playful, almost dog-like personalities. 🐾🌀", // Added Cornish Rex from earlier list
+        "Devon Rex": "Mischievous and outgoing, Devon Rex cats are known for their elfin faces and playful nature. 🐾😸", //Kept original for Devon Rex - example
+        "Egyptian Mau": "Intelligent and active, Egyptian Maus are known for their spotted coat and loyal, devoted nature. 🐾🐆", //Kept original for Egyptian Mau - example - Emoji adjusted to be consistent, original had leopard twice
+        "Exotic Shorthair": "Sweet and gentle, Exotic Shorthairs are known for their Persian-like appearance but with an easier-to-manage coat. 🐾😮‍💨", // Added Exotic Shorthair from earlier list
+        "Maine Coon": "Gentle giants, Maine Coons are known for their large size, shaggy coat, and friendly, playful nature. 🐾🐾", //Kept original for Maine Coon - example
+        "Norwegian Forest Cat": "Adaptable and gentle, Norwegian Forest Cats are known for their hardy nature and beautiful, thick coat. 🐾🌲", //Kept original for Norwegian Forest Cat - example
+        "Persian": "Sweet and docile, Persians are known for their luxurious long coat and calm, gentle temperament. 🐾🧸", //Kept original for Persian - example
+        "Ragdoll": "Affectionate and docile, Ragdolls are known for going limp when held and their gentle, laid-back personalities. 🐾🫂", // Added Ragdoll from earlier list
+        "Russian Blue": "Intelligent and reserved, Russian Blues are known for their striking silver-blue coat. 🐾🔷", //Kept original for Russian Blue - example
+        "Scottish Fold": "Sweet and adaptable, Scottish Folds are known for their folded ears and gentle, playful personalities. 🐾🎀", //Kept original for Scottish Fold - example
+        "Siamese": "Vocal and intelligent, Siamese cats are known for their striking blue almond-shaped eyes. 🐾👀", //Kept original for Siamese - example
+        "Sphynx": "Social and energetic, Sphynx cats are known for their hairless appearance and affectionate nature. 🐾💛", //Kept original for Sphynx - example
+
+    };
+            if (catInfo[breed]) {
+                showPopup(breed, catInfo[breed]);
+            } else {
+                console.error("Cat breed not found in the list.");
+            }
+        }
+    
+        // Initialize AOS animations
+        if (typeof AOS !== 'undefined') {
+            AOS.init({
+                duration: 1000,
+                easing: 'ease-out',
+                once: true
+            });
+        } else {
+            console.error("AOS library not found.");
+        }
+    </script>
+</body>
+</html>

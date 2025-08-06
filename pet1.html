@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PawPal - Your One-Stop Pet Shop</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+<script src="common.js"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#8B5CF6',secondary:'#F59E0B'},borderRadius:{'none':'0px','sm':'8px',DEFAULT:'12px','md':'16px','lg':'20px','xl':'24px','2xl':'28px','3xl':'32px','full':'9999px','button':'12px'}}}}</script>
+<style>
+    @keyframes pop {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    .pop-on-hover:hover {
+      animation: pop 0.3s ease-in-out;
+    }
+    
+    .profile-container {
+  position: relative;
+  margin-left: auto;
+}
+
+.profile-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f0f0f0;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  min-width: 200px;
+  display: none;
+}
+
+.user-info {
+  margin-bottom: 12px;
+}
+
+.full-name {
+  font-weight: 600;
+  margin: 0;
+}
+
+.username {
+  color: #666;
+  margin: 4px 0 0 0;
+  font-size: 0.9em;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 8px;
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: #f0f0f0;
+}
+
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+    
+</style>
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+.nav-link:hover { color: #8B5CF6; }
+.cart-popup {
+transform: translateX(100%);
+transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+opacity: 0;
+visibility: hidden;
+}
+.cart-popup.show {
+transform: translateX(0);
+opacity: 1;
+visibility: visible;
+}
+
+
+@keyframes smoothBounce {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px); /* Adjust the distance for a less intense bounce */
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.hover\:animate-bounce-smooth:hover {
+  animation: smoothBounce 0.4s ease-in-out; /* Adjust the duration to make it smoother */
+} 
+
+
+</style>
+</head>
+<body class="bg-gradient-to-b from-white via-purple-50/80 via-pink-50/50 via-blue-50/30 to-white">
+  <!-- Navigation -->
+  <nav class="fixed top-0 w-full bg-white/80 backdrop-blur-sm shadow-sm z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between h-16">
+              <div class="flex items-center">
+                  <a href="#" class="text-2xl font-['Pacifico'] text-primary flex items-center gap-2">
+                      
+                      <span>PawPal</span>
+                  </a>
+                  <div class="hidden md:flex items-center space-x-8 ml-10">
+                      <a href="pet.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Home</a>
+                      <a href="aboutus.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">About Us</a>
+                      <a href="dogs.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Dogs</a>
+                      <a href="cats.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Cats</a>
+                      <a href="pets.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Small pets</a>
+                      <a href="products.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Products</a>
+                      <a href="care.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Care</a>
+                      <a href="qq.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">questionaire</a>
+                  </div>
+              </div>
+              <div class="flex items-center space-x-2">
+                <!-- Search Bar -->
+                <div id="searchBar" class="hidden items-center border border-gray-300 bg-white rounded-md px-2 h-8">
+                    <input type="text" class="w-40 text-sm outline-none" placeholder="Search...">
+                    <button onclick="toggleSearch()" class="ml-2 text-gray-600 text-sm">✖</button>
+                </div>
+                <!-- Search Button -->
+                <button class="w-10 h-10 flex items-center justify-center" onclick="toggleSearch()">
+                    <i class="ri-search-line text-xl"></i>
+                </button>
+                <!-- Cart Button -->
+                <button onclick="toggleCart()" class="relative p-2">
+                    🛒 Cart
+                    <span id="cartCount" class="absolute -top-1 -right-1 bg-primary text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                        0
+                    </span>
+                </button>
+<!-- Add this near the cart button -->
+<div class="relative">
+  <button id="profileButton" class="w-10 h-10...">
+    <i class="ri-user-line"></i>
+  </button>
+ <!-- Add this to pet.html (and other pages later) -->
+<div class="profile-container relative">
+  <button onclick="toggleProfile()" class="flex items-center">
+    <span class="mr-2">Welcome, </span>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+    </svg>
+  </button>
+
+  <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2">
+    <div class="px-4 py-2">
+      <p class="text-sm font-medium">{{ user.first_name }} {{ user.second_name }}</p>
+      <p class="text-xs text-gray-500">@{{ user.username }}</p>
+    </div>
+    <hr class="my-1">
+    <button onclick="logout()" class="w-full px-4 py-2 text-sm text-left hover:bg-gray-100">
+      Log Out
+    </button>
+  </div>
+</div>
+
+<script>
+// Profile dropdown toggle
+function toggleProfile() {
+  const dropdown = document.getElementById('profileDropdown');
+  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  const dropdown = document.getElementById('profileDropdown');
+  const toggle = document.querySelector('.profile-toggle');
+  
+  if (!toggle.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.style.display = 'none';
+  }
+});
+
+// Logout functionality
+async function logout() {
+  try {
+    const response = await fetch('/logout');
+    if (response.ok) window.location.href = '/login.html';
+  } catch (error) {
+    console.error('Logout error:', error);
+  }
+}
+</script>
+
+         <button class="w-10 h-10 flex items-center justify-center md:hidden" onclick="toggleMenu()">
+                    <i class="ri-menu-line text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+<!-- Cart Popup -->
+<div id="cartPopup" class="fixed top-16 right-4 bg-white rounded-lg shadow-lg p-6 w-96 hidden z-50">
+  <h3 class="text-xl font-bold mb-4">Your Cart</h3>
+  <div id="cartItems" class="space-y-4 max-h-96 overflow-y-auto">
+    <!-- Cart items will be dynamically added here -->
+  </div>
+  <div class="mt-6">
+    <p class="text-lg font-bold">Total: $<span id="cartTotal">0.00</span></p>
+  </div>
+  <div class="mt-4 flex gap-4">
+    <button onclick="checkout()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-all flex-1">
+      Checkout
+    </button>
+    <button onclick="clearCart()" class="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-all">
+      Clear Cart
+    </button>
+    <button onclick="toggleCart()" class="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-all">
+      Close
+    </button>
+  </div>
+</div>
+  <!-- Overlay -->
+  <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40" onclick="toggleMenu()"></div>
+
+<!-- Mobile Navigation Menu -->
+<div id="mobileMenu" class="fixed top-0 left-0 w-64 h-full bg-white p-6 flex flex-col items-center shadow-lg transition-transform duration-300 ease-in-out transform -translate-x-full z-50">
+  <button onclick="toggleMenu()" class="self-end text-gray-600 text-2xl hover:text-gray-900 transition-colors duration-200">✖</button>
+  <nav class="mt-6 w-full text-center space-y-4">
+    <a href="pet.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Home</a>
+    <a href="aboutus.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">About</a>
+    <a href="dogs.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Dogs</a>
+    <a href="cats.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Cats</a>
+    <a href="pets.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Small Pets</a>
+    <a href="products.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Products</a>
+    <a href="care.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Care</a>
+  </nav>
+</div>
+<script>
+ function toggleMenu() {
+  const menu = document.getElementById('mobileMenu');
+  const overlay = document.getElementById('overlay');
+  menu.classList.toggle('-translate-x-full');
+  menu.classList.toggle('translate-x-0');
+  overlay.classList.toggle('hidden');
+}
+  </script>
+
+</div>
+</div>
+</div>
+</nav>
+<main class="mt-16">
+<section class="relative h-[600px] bg-cover bg-center animate-float" style="background-image: url('https://images.pexels.com/photos/29838644/pexels-photo-29838644/free-photo-of-cozy-cat-sunbathing-outside-a-shop.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2')">
+<div class="absolute inset-0 bg-black bg-opacity-50"></div>
+<div class="relative max-w-7xl mx-auto px-4 h-full flex items-center" id="heroContent">
+<div class="text-white max-w-2xl">
+<h1 class="text-5xl font-bold mb-6 opacity-0 translate-y-4" id="heroTitle">Welcome to PawPal</h1>
+<p class="text-xl mb-8 opacity-0 translate-y-4" id="heroDesc" style="transition-delay: 200ms">Your one-stop destination for all pet needs. Quality products, expert care, and endless love for your furry friends.</p>
+
+  
+</div>
+</div>
+<style>
+.animate-stack {
+opacity: 1 !important;
+transform: translateY(0) !important;
+transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+const elements = ['heroTitle', 'heroDesc', 'heroBtn'];
+setTimeout(() => {
+elements.forEach(id => {
+document.getElementById(id).classList.add('animate-stack');
+});
+}, 300);
+});
+</script>
+</section>
+</section>
+<section class="py-16 bg-gradient-to-b from-white via-purple-50/80 via-pink-50/50 via-blue-50/30 to-white" data-aos="fade-up">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12">Featured Categories</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8" data-aos="fade-up" data-aos-delay="200">
+            <!-- Dogs Section -->
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-right" data-aos-delay="400">
+                <div class="h-64 overflow-hidden">
+                    <img src="https://images.pexels.com/photos/27175380/pexels-photo-27175380/free-photo-of-dalmatian-puppy-dogs-in-a-tin-bathtub.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Dogs">
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold mb-2">Dogs</h3>
+                    <p class="text-gray-600 mb-4">Find your perfect canine companion from our selection of pure breeds and rescues.</p>
+                    <a href="dogs.html" class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300">
+                        <span class="relative z-10">
+                            Learn More
+                        </span>
+                        <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Cats Section -->
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-up" data-aos-delay="600">
+                <div class="h-64 overflow-hidden">
+                    <img src="https://images.pexels.com/photos/15803558/pexels-photo-15803558/free-photo-of-kittens-in-a-basket.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Cats">
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold mb-2">Cats</h3>
+                    <p class="text-gray-600 mb-4">Discover our lovely feline friends waiting for their forever homes.</p>
+                    <a href="cats.html" class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300">
+                        <span class="relative z-10">
+                            Learn More
+                        </span>
+                        <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Small Pets Section -->
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-left" data-aos-delay="800">
+                <div class="h-64 overflow-hidden">
+                    <img src="https://images.pexels.com/photos/1093126/pexels-photo-1093126.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Small Pets">
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold mb-2">Small Pets</h3>
+                    <p class="text-gray-600 mb-4">Explore our selection of hamsters, rabbits, birds, and more.</p>
+                    <a href="pets.html" class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300">
+                        <span class="relative z-10">
+                            Learn More
+                        </span>
+                        <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="py-16" data-aos="fade-up">
+<div class="max-w-7xl mx-auto px-4">
+<h2 class="text-3xl font-bold text-center mb-12">Best Selling Products</h2>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all">
+<div class="h-48 overflow-hidden">
+<img src="https://images.unsplash.com/photo-1601758228006-964e41e5e8eb?q=80&w=1976&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="w-full h-full object-cover" alt="Premium Pet Food">
+</div>
+<div class="p-4">
+<h3 class="font-semibold mb-2">Premium Pet Food</h3>
+<div class="flex items-center mb-2">
+<div class="flex text-yellow-400">
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-half-fill"></i>
+</div>
+<span class="text-sm text-gray-500 ml-2">(128)</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-lg font-bold">$29.99</span>
+<a href="products.html" class="bg-primary text-white px-4 py-2 !rounded-button hover:bg-opacity-90 hover:scale-105 transition-all flex items-center justify-center">
+  see more
+</a>
+  
+  
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all">
+<div class="h-48 overflow-hidden">
+<img src="https://img.freepik.com/free-photo/adorable-white-little-puppy_23-2148985894.jpg?t=st=1741113215~exp=1741116815~hmac=78174b09fb51e5e6c4ff49fe669d92de900cfd98022fbbd705b70592dc8de569&w=1380" class="w-full h-full object-cover" alt="Luxury Pet Bed">
+</div>
+<div class="p-4">
+<h3 class="font-semibold mb-2">Luxury Pet Bed</h3>
+<div class="flex items-center mb-2">
+<div class="flex text-yellow-400">
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+</div>
+<span class="text-sm text-gray-500 ml-2">(95)</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-lg font-bold">$49.99</span>
+<a href="products.html" class="bg-primary text-white px-4 py-2 !rounded-button hover:bg-opacity-90 hover:scale-105 transition-all flex items-center justify-center">
+  see more
+</a>
+  
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all">
+<div class="h-48 overflow-hidden">
+<img src="https://images.pexels.com/photos/3013467/pexels-photo-3013467.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover" alt="Interactive Toy">
+</div>
+<div class="p-4">
+<h3 class="font-semibold mb-2">Interactive Toy</h3>
+<div class="flex items-center mb-2">
+<div class="flex text-yellow-400">
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-line"></i>
+</div>
+<span class="text-sm text-gray-500 ml-2">(76)</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-lg font-bold">$19.99</span>
+<a href="products.html" class="bg-primary text-white px-4 py-2 !rounded-button hover:bg-opacity-90 hover:scale-105 transition-all flex items-center justify-center">
+  see more
+</a>
+  
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all">
+<div class="h-48 overflow-hidden">
+<img src="https://img.freepik.com/free-photo/pet-accessories-still-life-concept-with-grooming-objects-food_23-2148949582.jpg?t=st=1741113299~exp=1741116899~hmac=bdd06e9282fec6fe1610b3fb6f55d951636132f2d460a4808f5608870c7644de&w=1380" class="w-full h-full object-cover" alt="Grooming Kit">
+</div>
+<div class="p-4">
+<h3 class="font-semibold mb-2">Grooming Kit</h3>
+<div class="flex items-center mb-2">
+<div class="flex text-yellow-400">
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-fill"></i>
+<i class="ri-star-half-fill"></i>
+</div>
+<span class="text-sm text-gray-500 ml-2">(142)</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-lg font-bold">$39.99</span>
+<a href="products.html" class="bg-primary text-white px-4 py-2 !rounded-button hover:bg-opacity-90 hover:scale-105 transition-all flex items-center justify-center">
+  see more
+</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-16 bg-gradient-to-b from-white via-purple-50/80 via-pink-50/50 via-blue-50/30 to-white" data-aos="fade-up">
+<div class="max-w-7xl mx-auto px-4">
+<h2 class="text-3xl font-bold text-center mb-12">Our Services</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8" data-aos="fade-up" data-aos-delay="200">
+<div class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all">
+<div class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-10 rounded-full mb-4">
+<i class="ri-heart-pulse-line text-primary text-2xl"></i>
+</div>
+<h3 class="text-xl font-semibold mb-3">Expert Care</h3>
+<p class="text-gray-600 mb-4">Professional veterinary services for routine check-ups, vaccinations, and emergency care.</p>
+<button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300">
+    <span class="relative z-10">
+      see more
+    </span>
+    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+  </button>
+</div>
+<div class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all">
+<div class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-10 rounded-full mb-4">
+<i class="ri-scissors-line text-primary text-2xl"></i>
+</div>
+<h3 class="text-xl font-semibold mb-3">Premium Products</h3>
+<p class="text-gray-600 mb-4">We carefully select and stock only the highest quality pet supplies and nutrition products.</p>
+<button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300">
+    <span class="relative z-10">
+      see more
+    </span>
+    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+  </button>
+</div>
+<div class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all">
+<div class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-10 rounded-full mb-4">
+<i class="ri-home-heart-line text-primary text-2xl"></i>
+</div>
+<h3 class="text-xl font-semibold mb-3">24/7 care</h3>
+<p class="text-gray-600 mb-4">Emergency support available around the clock for your peace of mind.</p>
+<button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300">
+    <span class="relative z-10">
+        see more
+    </span>
+    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+  </button>
+</div>
+</div>
+</div>
+
+</main>
+<footer class="bg-gray-900 text-white py-12" data-aos="fade-up">
+<div class="max-w-7xl mx-auto px-4">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8" data-aos="fade-up" data-aos-delay="200">
+<div>
+<h3 class="text-xl font-['Pacifico'] mb-4 flex items-center gap-2">
+<i class="ri-footprint-line text-2xl"></i>
+<span>PawPal</span>
+</h3>
+<p class="text-gray-400">Your trusted partner in pet care since 2023.</p>
+</div>
+<div>
+<h4 class="font-semibold mb-4">Quick Links</h4>
+<ul class="space-y-2">
+<li><a href="#" class="text-gray-400 hover:text-white">About Us</a></li>
+<li><a href="#" class="text-gray-400 hover:text-white">Care</a></li>
+<li><a href="#" class="text-gray-400 hover:text-white">Products</a></li>
+<li><a href="#" class="text-gray-400 hover:text-white">Contact</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-semibold mb-4">Contact Info</h4>
+<ul class="space-y-2 text-gray-400">
+<li class="flex items-center"><i class="ri-map-pin-line mr-2"></i> 123 kavali</li>
+<li class="flex items-center"><i class="ri-phone-line mr-2"></i> 2273A31033</li>
+<li class="flex items-center"><i class="ri-mail-line mr-2"></i> 2273A31048</li>
+</ul>
+</div>
+<div>
+<h4 class="font-semibold mb-4">Newsletter</h4>
+<form class="flex">
+<input type="email" placeholder="Your email" class="flex-1 px-4 py-2 rounded-l-lg text-gray-900">
+<button class="bg-primary px-4 py-2 !rounded-r-lg hover:bg-opacity-90">Subscribe</button>
+</form>
+</div>
+</div>
+<div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+<p>&copy; 2025 PawParadise. All rights reserved.</p>
+</div>
+</div>
+</footer>
+<div id="cartPopup" class="cart-popup fixed top-0 right-0 h-full w-96 bg-white shadow-lg z-50 transform transition-all duration-300 ease-in-out">
+<div class="p-4">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-semibold">Shopping Cart</h3>
+<button onclick="toggleCart()" class="w-8 h-8 flex items-center justify-center">
+<i class="ri-close-line text-xl"></i>
+</button>
+</div>
+<div class="divide-y">
+<div class="py-4 flex items-center space-x-4">
+<img src="https://public.readdy.ai/ai/img_res/4ce970182a2c4e3f031da480182c63f0.jpg" class="w-20 h-20 object-cover rounded" alt="Product">
+<div class="flex-1">
+<h4 class="font-semibold">Premium Pet Food</h4>
+<p class="text-gray-500">$29.99</p>
+<div class="flex items-center space-x-2 mt-2">
+<button class="w-6 h-6 flex items-center justify-center border !rounded-button">-</button>
+<span>1</span>
+<button class="w-6 h-6 flex items-center justify-center border !rounded-button">+</button>
+</div>
+</div>
+<button class="text-gray-400 hover:text-gray-600">
+<i class="ri-delete-bin-line text-xl"></i>
+</button>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 w-full p-4 bg-white border-t">
+<div class="flex justify-between mb-4">
+<span class="font-semibold">Total:</span>
+<span class="font-semibold">$29.99</span>
+</div>
+<button class="w-full bg-primary text-white py-3 !rounded-button hover:bg-opacity-90">Checkout</button>
+</div>
+</div>
+</div>
+<script>
+  function toggleCart() {
+  const cartPopup = document.getElementById('cartPopup');
+  const overlay = document.getElementById('overlay');
+  cartPopup.classList.toggle('hidden');
+  overlay.classList.toggle('hidden');
+}
+function toggleMenu() {
+  const menu = document.getElementById('mobileMenu');
+  const overlay = document.getElementById('overlay');
+  menu.classList.toggle('-translate-x-full');
+  menu.classList.toggle('translate-x-0');
+  overlay.classList.toggle('hidden');
+}
+        // Function to toggle search bar
+        function toggleSearch() {
+            const searchBar = document.getElementById('searchBar');
+            if (searchBar) {
+                searchBar.classList.toggle('hidden');
+            } else {
+                console.error("Search bar element not found.");
+            }
+        }
+    
+        // Function to show a popup message
+        function showPopup(title, message) {
+            const popup = document.createElement('div');
+            popup.className = 'fixed top-4 right-4 bg-white p-6 rounded-lg shadow-lg z-50';
+            popup.innerHTML = `
+                <h3 class="text-lg font-bold mb-2">${title}</h3>
+                <p class="text-gray-700">${message}</p>
+            `;
+            document.body.appendChild(popup);
+    
+            // Remove the popup after 3 seconds
+            setTimeout(() => {
+                popup.remove();
+            }, 3000);
+        }
+    
+      // Toggle profile dropdown
+document.getElementById('profileButton').addEventListener('click', () => {
+  const dropdown = document.getElementById('profileDropdown');
+  dropdown.classList.toggle('hidden');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  const dropdown = document.getElementById('profileDropdown');
+  const profileButton = document.getElementById('profileButton');
+  if (!dropdown.contains(e.target) && !profileButton.contains(e.target)) {
+    dropdown.classList.add('hidden');
+  }
+});
+    
+        // Initialize AOS animations
+        if (typeof AOS !== 'undefined') {
+            AOS.init({
+                duration: 1000,
+                easing: 'ease-out',
+                once: true
+            });
+        } else {
+            console.error("AOS library not found.");
+        }
+</script>
+</body>
+</html>

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawPal - Your One-Stop Pet Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <script src="/common.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#8B5CF6',
+                        secondary: '#F59E0B'
+                    },
+                    borderRadius: {
+                        'none': '0px',
+                        'sm': '8px',
+                        DEFAULT: '12px',
+                        'md': '16px',
+                        'lg': '20px',
+                        'xl': '24px',
+                        '2xl': '28px',
+                        '3xl': '32px',
+                        'full': '9999px',
+                        'button': '12px'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .cart-popup.show {
+transform: translateX(0);
+opacity: 1;
+visibility: visible;
+}
+
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .pop-on-hover:hover {
+            animation: pop 0.3s ease-in-out;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes smoothBounce {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-4px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .hover\:animate-bounce-smooth:hover {
+            animation: smoothBounce 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-white via-purple-50/80 via-pink-50/50 via-blue-50/30 to-white">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/80 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="#" class="text-2xl font-['Pacifico'] text-primary flex items-center gap-2">
+                        
+                        <span>PawPal</span>
+                    </a>
+                    <div class="hidden md:flex items-center space-x-8 ml-10">
+                        <a href="pet.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Home</a>
+                        <a href="aboutus.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">About Us</a>
+                        <a href="dogs.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">dogs</a>
+                        <a href="cats.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">cats</a>
+                        <a href="pets.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">small pets</a>
+                        <a href="products.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Products</a>
+                        <a href="care.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Care</a>
+                        <a href="qq.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">questionaire</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <!-- Search Bar -->
+                    <div id="searchBar" class="hidden items-center border border-gray-300 bg-white rounded-md px-2 h-8">
+                        <input type="text" class="w-40 text-sm outline-none" placeholder="Search...">
+                        <button onclick="toggleSearch()" class="ml-2 text-gray-600 text-sm">✖</button>
+                    </div>
+                    <!-- Search Button -->
+                    <button class="w-10 h-10 flex items-center justify-center" onclick="toggleSearch()">
+                        <i class="ri-search-line text-xl"></i>
+                    </button>
+                       <!-- Cart Button -->
+                       <button onclick="toggleCart()" class="relative p-2">
+                        🛒 Cart
+                        <span id="cartCount" class="absolute -top-1 -right-1 bg-primary text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                            0
+                        </span>
+                    </button>
+         <!-- Mobile Menu Button -->
+                    <button class="w-10 h-10 flex items-center justify-center md:hidden" onclick="toggleMenu()">
+                        <i class="ri-menu-line text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+  <!-- Cart Popup -->
+<div id="cartPopup" class="fixed top-16 right-4 bg-white rounded-lg shadow-lg p-6 w-96 hidden z-50">
+    <h3 class="text-xl font-bold mb-4">Your Cart</h3>
+    <div id="cartItems" class="space-y-4 max-h-96 overflow-y-auto">
+      <!-- Cart items will be dynamically added here -->
+    </div>
+    <div class="mt-6">
+      <p class="text-lg font-bold">Total: $<span id="cartTotal">0.00</span></p>
+    </div>
+    <div class="mt-4 flex gap-4">
+      <button onclick="checkout()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-all flex-1">
+        Checkout
+      </button>
+      
+      <button onclick="toggleCart()" class="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-all">
+        Close
+      </button>
+    </div>
+  </div>
+   <!-- Mobile Navigation Menu -->
+<div id="mobileMenu" class="hidden fixed top-0 left-0 w-full h-full bg-white p-6 flex flex-col items-center shadow-lg transform transition-transform duration-300 ease-in-out -translate-x-full">
+    <button onclick="toggleMenu()" class="self-end text-gray-600 text-2xl hover:text-gray-900 transition-colors duration-200">✖</button>
+    <nav class="mt-6 w-full text-center space-y-4">
+        <a href="pet.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Home</a>
+        <a href="aboutus.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">About</a>
+        <a href="dogs.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Dogs</a>
+        <a href="cats.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Cats</a>
+        <a href="pets.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Small Pets</a>
+        <a href="products.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Products</a>
+        <a href="care.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Care</a>
+    </nav>
+  </div>
+  
+  <script>
+  function toggleMenu() {
+    const menu = document.getElementById('mobileMenu');
+    menu.classList.toggle('hidden');
+    menu.classList.toggle('translate-x-0');
+  }
+  </script>
+    <!-- Main Content -->
+    <main class="mt-16">
+        <!-- Hero Section -->
+        <section class="relative h-[600px] bg-cover bg-center animate-float" style="background-image: url('https://images.pexels.com/photos/70069/pexels-photo-70069.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2')">
+            <div class="absolute inset-0 bg-black bg-opacity-70 z-10"></div>
+            <div class="relative max-w-7xl mx-auto px-4 h-full flex items-center z-20" id="heroContent">
+                <div class="text-white max-w-2xl">
+                    <h1 class="text-5xl font-bold mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-fade-in-down" id="heroTitle">
+                        Discover your small animal soulmate
+                    </h1>
+                    <p class="text-xl mb-8 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-fade-in-up" id="heroDesc">
+                        Connecting pet lovers with adorable little companions. Discover your small animal soulmate ready for a lifetime of joy and gentle moments  Bringing together hearts and felines. Find your feline soulmate and start a journey filled with happy meows, gentle nudges, and unwavering companionship.
+                    </p>
+                   
+                </div>
+            </div>
+        </section>
+        <style>
+          @keyframes fadeInDown {
+              0% {
+                  opacity: 0;
+                  transform: translateY(-20px);
+              }
+              100% {
+                  opacity: 1;
+                  transform: translateY(0);
+              }
+          }
+      
+          @keyframes fadeInUp {
+              0% {
+                  opacity: 0;
+                  transform: translateY(20px);
+              }
+              100% {
+                  opacity: 1;
+                  transform: translateY(0);
+              }
+          }
+      
+          @keyframes fadeIn {
+              0% {
+                  opacity: 0;
+              }
+              100% {
+                  opacity: 1;
+              }
+          }
+      
+          .animate-fade-in-down {
+              animation: fadeInDown 1s ease-out forwards;
+          }
+      
+          .animate-fade-in-up {
+              animation: fadeInUp 1s ease-out forwards;
+          }
+      
+          .animate-fade-in {
+              animation: fadeIn 1s ease-out forwards;
+          }
+      </style>
+  
+
+        <!-- Featured Dog Breeds Section -->
+        <section class="py-16 bg-gradient-to-b from-white via-purple-50/80 via-pink-50/50 via-blue-50/30 to-white" data-aos="fade-up">
+            <div class="max-w-7xl mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">Featured  Breeds</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8" data-aos="fade-up" data-aos-delay="200">
+                    <!-- Card for Labrador Retriever -->
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-right" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/3586056/pexels-photo-3586056.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Hamsters">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Hamsters</h3>
+                            <div class="text-primary font-bold mb-2">$199</div>
+                            <p class="text-gray-600 mb-4">Hamsters are known for being cute, furry, and relatively low-maintenance pets, though they need careful handling.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                onclick="addToCart({
+                                    id: 'Hamsters-${Date.now()}',
+                                    name: 'Hamsters',
+                                    price: 199,
+                                    quantity: 1
+                                })">
+                            Buy Now
+                        </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showPetInfo('Hamsters')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-up" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/30550734/pexels-photo-30550734/free-photo-of-romantic-parakeets-sharing-a-moment-on-a-branch.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Parakeets">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Parakeets</h3>
+                            <div class="text-primary font-bold mb-2">$299</div>
+                            <p class="text-gray-600 mb-4">Social and intelligent, parakeets are colorful, vocal birds that can be trained and enjoy interaction with their owners.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                onclick="addToCart({
+                                    id: 'Parakeets-${Date.now()}',
+                                    name: 'Parakeetss',
+                                    price: 299,
+                                    quantity: 1
+                                })">
+                            Buy Now
+                        </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showPetInfo('Parakeets')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-left" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/942296/pexels-photo-942296.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Betta Fish">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Betta Fish</h3>
+                            <div class="text-primary font-bold mb-2">$299</div>
+                            <p class="text-gray-600 mb-4">Betta fish (Siamese Fighting Fish) are known for their vibrant colors and flowing fins, requiring specific water conditions.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                onclick="addToCart({
+                                    id: 'Betta Fish-${Date.now()}',
+                                    name: 'Betta Fish',
+                                    price: 299,
+                                    quantity: 1
+                                })">
+                            Buy Now
+                        </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showPetInfo('Betta Fish')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-right" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/7173566/pexels-photo-7173566.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Sugar Gliders">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Sugar Gliders</h3>
+                            <div class="text-primary font-bold mb-2">$99</div>
+                            <p class="text-gray-600 mb-4">Sugar gliders are small marsupials known for their gliding membrane and need for companionship and specialized care.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                onclick="addToCart({
+                                    id: 'Sugar Gliders-${Date.now()}',
+                                    name: 'Sugar Gliders',
+                                    price: 99,
+                                    quantity: 1
+                                })">
+                            Buy Now
+                        </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showPetInfo('Sugar Gliders')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-up" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/14933214/pexels-photo-14933214.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Red-Eared Slider">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Red-Eared Slider</h3>
+                            <div class="text-primary font-bold mb-2">$499</div>
+                            <p class="text-gray-600 mb-4">Red-eared sliders are turtles requiring spacious tanks with both water and land areas, and specific lighting and heating.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                onclick="addToCart({
+                                    id: 'Red-Eared Slider-${Date.now()}',
+                                    name: 'Red-Eared Slider',
+                                    price: 499,
+                                    quantity: 1
+                                })">
+                            Buy Now
+                        </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showPetInfo('Red-Eared Slider')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-left" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/13000023/pexels-photo-13000023.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Giant African Land Snail">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Giant African Land Snail</h3>
+                            <div class="text-primary font-bold mb-2">$399</div>
+                            <p class="text-gray-600 mb-4">Giant African land snails are docile pets requiring humid environments and are fascinating to observe.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                onclick="addToCart({
+                                    id: 'Giant African Land Snail-${Date.now()}',
+                                    name: 'Giant African Land Snail',
+                                    price: 399,
+                                    quantity: 1
+                                })">
+                            Buy Now
+                        </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showPetInfo('Giant African Land Snail')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-right" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/174667/pexels-photo-174667.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Guinea Pigs">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Guinea Pigs</h3>
+                            <div class="text-primary font-bold mb-2">$399</div>
+                            <p class="text-gray-600 mb-4">Guinea pigs are known for their vocal 'wheeking' sounds, needing companionship and spacious cages.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                onclick="addToCart({
+                                    id: 'Guinea Pigs-${Date.now()}',
+                                    name: 'Guinea Pigs',
+                                    price: 399,
+                                    quantity: 1
+                                })">
+                            Buy Now
+                        </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showPetInfo('Guinea Pigs')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-up" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/12194088/pexels-photo-12194088.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Dwarf Rabbits">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Dwarf Rabbits</h3>
+                            <div class="text-primary font-bold mb-2">$499</div>
+                            <p class="text-gray-600 mb-4">Dwarf rabbits can be litter-trained and make affectionate pets, but require careful handling and specific diets.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                onclick="addToCart({
+                                    id: 'Dwarf Rabbits-${Date.now()}',
+                                    name: 'Dwarf Rabbits',
+                                    price: 499,
+                                    quantity: 1
+                                })">
+                            Buy Now
+                        </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showPetInfo('Dwarf Rabbits')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-left" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/20356586/pexels-photo-20356586/free-photo-of-the-wood-mouse-is-a-little-shy-but-will-come-if-you-stand-still-and-wait.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Gerbils">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Gerbils</h3>
+                            <div class="text-primary font-bold mb-2">$299</div>
+                            <p class="text-gray-600 mb-4">Curious and social, gerbils are active, diurnal rodents who enjoy digging and living in pairs or groups.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                onclick="addToCart({
+                                    id: 'Gerbils-${Date.now()}',
+                                    name: 'Gerbils',
+                                    price: 299,
+                                    quantity: 1
+                                })">
+                            Buy Now
+                        </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showPetInfo('Gerbils')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-right" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/5776581/pexels-photo-5776581.png?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Ferrets">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Ferrets</h3>
+                            <div class="text-primary font-bold mb-2">$499</div>
+                            <p class="text-gray-600 mb-4">Ferrets are intelligent and energetic pets needing lots of enrichment and social interaction.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                onclick="addToCart({
+                                    id: 'Ferrets-${Date.now()}',
+                                    name: 'Ferrets',
+                                    price: 499,
+                                    quantity: 1
+                                })">
+                            Buy Now
+                        </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showPetInfo('Ferrets')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-up" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/18447656/pexels-photo-18447656/free-photo-of-close-up-of-hedgehog-on-ground.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Hedgehogs">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Hedgehogs</h3>
+                            <div class="text-primary font-bold mb-2">$299</div>
+                            <p class="text-gray-600 mb-4">African pygmy hedgehogs are unique pets known for their quills and insectivorous diet.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                onclick="addToCart({
+                                    id: 'Hedgehogs-${Date.now()}',
+                                    name: 'Hedgehogs',
+                                    price: 299,
+                                    quantity: 1
+                                })">
+                            Buy Now
+                        </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showPetInfo('Hedgehogs')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-left" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/8434677/pexels-photo-8434677.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Chinchillas">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Chinchillas</h3>
+                            <div class="text-primary font-bold mb-2">$399</div>
+                            <p class="text-gray-600 mb-4">Chinchillas are known for their incredibly soft fur and require dust baths and cool environments.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                onclick="addToCart({
+                                    id: 'Chinchillas-${Date.now()}',
+                                    name: 'Chinchillas',
+                                    price: 299,
+                                    quantity: 1
+                                })">
+                            Buy Now
+                        </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showPetInfo('Chinchillas')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-right" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/15193801/pexels-photo-15193801/free-photo-of-rad-eating-cheese.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Fancy Rats">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Fancy Rats</h3>
+                            <div class="text-primary font-bold mb-2">$199</div>
+                            <p class="text-gray-600 mb-4">Fancy rats are surprisingly clean and affectionate pets who thrive in groups and can be trained.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                onclick="addToCart({
+                                    id: 'Fancy Rats-${Date.now()}',
+                                    name: 'Fancy Rats',
+                                    price: 199,
+                                    quantity: 1
+                                })">
+                            Buy Now
+                        </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showPetInfo('Fancy Rats')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-up" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/16677626/pexels-photo-16677626/free-photo-of-exotic-blue-tang-fish.jpeg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Exotic Blue Tang Fish">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Exotic Blue Tang Fish</h3>
+                            <div class="text-primary font-bold mb-2">$999</div>
+                            <p class="text-gray-600 mb-4">Blue Tang is a stunning and active fish that can be a rewarding addition to a large aquarium.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                onclick="addToCart({
+                                    id: 'Exotic Blue Tang Fish-${Date.now()}',
+                                    name: 'Exotic Blue Tang Fish',
+                                    price: 999,
+                                    quantity: 1
+                                })">
+                            Buy Now
+                        </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showPetInfo('Exotic Blue Tang Fish')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all" data-aos="fade-left" data-aos-delay="600">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/372166/pexels-photo-372166.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="White and Brown Rabbit">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">White and Brown Rabbit</h3>
+                            <div class="text-primary font-bold mb-2">$299</div>
+                            <p class="text-gray-600 mb-4">They are intelligent, social, and can be very rewarding companions.</p>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-90 transition-all" 
+                                onclick="addToCart({
+                                    id: 'White and Brown Rabbit-${Date.now()}',
+                                    name: 'White and Brown Rabbit',
+                                    price: 299,
+                                    quantity: 1
+                                })">
+                            Buy Now
+                        </button>
+                                <button class="text-primary flex items-center !rounded-button px-6 py-3 relative overflow-hidden group transition-all duration-300" onclick="showPetInfo('White and Brown Rabbit')">
+                                    <span class="relative z-10">Learn More</span>
+                                    <i class="ri-arrow-right-line ml-2 transform translate-x-0 transition-transform duration-500 ease-out group-hover:translate-x-2 group-hover:opacity-100"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                  
+                    <!-- Add cards for the remaining breeds similarly -->
+                </div>
+            </div>
+        </section>
+    </main>
+    
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Footer content from your index.html -->
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 PawParadise. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+ function toggleCart() {
+  const cartPopup = document.getElementById('cartPopup');
+  const overlay = document.getElementById('overlay');
+  cartPopup.classList.toggle('hidden');
+  overlay.classList.toggle('hidden');
+}
+              // Function to toggle mobile menu
+              function toggleMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+            } else {
+                console.error("Mobile menu element not found.");
+            }
+        }
+    
+        // Function to toggle search bar
+        function toggleSearch() {
+            const searchBar = document.getElementById('searchBar');
+            if (searchBar) {
+                searchBar.classList.toggle('hidden');
+            } else {
+                console.error("Search bar element not found.");
+            }
+        }
+    
+        // Function to show a popup message
+        function showPopup(title, message) {
+            const popup = document.createElement('div');
+            popup.className = 'fixed top-4 right-4 bg-white p-6 rounded-lg shadow-lg z-50';
+            popup.innerHTML = `
+                <h3 class="text-lg font-bold mb-2">${title}</h3>
+                <p class="text-gray-700">${message}</p>
+            `;
+            document.body.appendChild(popup);
+    
+            // Remove the popup after 3 seconds
+            setTimeout(() => {
+                popup.remove();
+            }, 3000);
+        }
+    
+    
+      
+        // Updated Learn More function for small pets
+        function showPetInfo(pet) {
+            const petInfo = {
+                "Hamsters": "Hamsters are known for being cute, furry, and relatively low-maintenance pets, though they need careful handling. 🐹",
+                "Parakeets": "Social and intelligent, parakeets are colorful, vocal birds that can be trained and enjoy interaction with their owners. 🦜",
+                "Betta Fish": "Betta fish (Siamese Fighting Fish) are known for their vibrant colors and flowing fins, requiring specific water conditions. 🐟",
+                "Sugar Gliders": "Sugar gliders are small marsupials known for their gliding membrane and need for companionship and specialized care. 🦘",
+                "Red-Eared Slider": "Red-eared sliders are turtles requiring spacious tanks with both water and land areas, and specific lighting and heating. 🐢",
+                "Giant African Land Snail": "Giant African land snails are docile pets requiring humid environments and are fascinating to observe. 🐌",
+                "Guinea Pigs": "Guinea pigs are known for their vocal 'wheeking' sounds, needing companionship and spacious cages. 🐹",
+                "Dwarf Rabbits": "Dwarf rabbits can be litter-trained and make affectionate pets, but require careful handling and specific diets. 🐰",
+                "Gerbils": "Curious and social, gerbils are active, diurnal rodents who enjoy digging and living in pairs or groups. 🐭",
+                "Ferrets": "Ferrets are intelligent and energetic pets needing lots of enrichment and social interaction. 🦡",
+                "Hedgehogs": "African pygmy hedgehogs are unique pets known for their quills and insectivorous diet. 🦔",
+                "Chinchillas": "Chinchillas are known for their incredibly soft fur and require dust baths and cool environments. 🐭",
+                "Fancy Rats": "Fancy rats are surprisingly clean and affectionate pets who thrive in groups and can be trained. 🐀",
+                "Exotic Blue Tang Fish": "Blue Tang is a stunning and active fish that can be a rewarding addition to a large aquarium. 🐠",
+                "White and Brown Rabbit": "Rabbits are intelligent, social, and can be very rewarding companions. 🐇"
+            };
+            if (petInfo[pet]) {
+                showPopup(pet, petInfo[pet]);
+            } else {
+                console.error("Pet not found in the list.");
+            }
+        }
+    
+        // Initialize AOS animations
+        if (typeof AOS !== 'undefined') {
+            AOS.init({
+                duration: 1000,
+                easing: 'ease-out',
+                once: true
+            });
+        } else {
+            console.error("AOS library not found.");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawParadise - Your One-Stop Pet Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <script src="/common.js"></script>
+   <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#8B5CF6',
+                        secondary: '#F59E0B'
+                    },
+                    borderRadius: {
+                        'none': '0px',
+                        'sm': '8px',
+                        DEFAULT: '12px',
+                        'md': '16px',
+                        'lg': '20px',
+                        'xl': '24px',
+                        '2xl': '28px',
+                        '3xl': '32px',
+                        'full': '9999px',
+                        'button': '12px'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .cart-popup.show {
+transform: translateX(0);
+opacity: 1;
+visibility: visible;
+}
+
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .pop-on-hover:hover {
+            animation: pop 0.3s ease-in-out;
+        }
+
+      
+
+        @keyframes smoothBounce {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-4px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .hover\:animate-bounce-smooth:hover {
+            animation: smoothBounce 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-white via-purple-50/80 via-pink-50/50 via-blue-50/30 to-white">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/80 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="#" class="text-2xl font-['Pacifico'] text-primary flex items-center gap-2">
+                      <a href="#" class="text-2xl font-['Pacifico'] text-primary flex items-center gap-2">
+                        <i class="ri-paw-line text-3xl"></i>
+                      
+                        <span>PawPal</span>
+                    </a>
+                    <div class="hidden md:flex items-center space-x-8 ml-10">
+                        <a href="pet.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Home</a>
+                        <a href="aboutus.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">About Us</a>
+                        <a href="dogs.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">dogs</a>
+                        <a href="cats.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">cats</a>
+                        <a href="pets.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">small pets</a>
+                        <a href="products.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Products</a>
+                        <a href="care.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Care</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <!-- Search Bar -->
+                    <div id="searchBar" class="hidden items-center border border-gray-300 bg-white rounded-md px-2 h-8">
+                        <input type="text" class="w-40 text-sm outline-none" placeholder="Search...">
+                        <button onclick="toggleSearch()" class="ml-2 text-gray-600 text-sm">✖</button>
+                    </div>
+                    <!-- Search Button -->
+                    <button class="w-10 h-10 flex items-center justify-center" onclick="toggleSearch()">
+                        <i class="ri-search-line text-xl"></i>
+                    </button>
+  <!-- Cart Button -->
+  <button onclick="toggleCart()" class="relative p-2">
+    🛒 Cart
+    <span id="cartCount" class="absolute -top-1 -right-1 bg-primary text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+        0
+    </span>
+</button>
+<!-- Mobile Menu Button -->
+                    <button class="w-10 h-10 flex items-center justify-center md:hidden" onclick="toggleMenu()">
+                        <i class="ri-menu-line text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+   <!-- Cart Popup -->
+<div id="cartPopup" class="fixed top-16 right-4 bg-white rounded-lg shadow-lg p-6 w-96 hidden z-50">
+    <h3 class="text-xl font-bold mb-4">Your Cart</h3>
+    <div id="cartItems" class="space-y-4 max-h-96 overflow-y-auto">
+      <!-- Cart items will be dynamically added here -->
+    </div>
+    <div class="mt-6">
+      <p class="text-lg font-bold">Total: $<span id="cartTotal">0.00</span></p>
+    </div>
+    <div class="mt-4 flex gap-4">
+      <button onclick="checkout()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-all flex-1">
+        Checkout
+      </button>
+     
+      <button onclick="toggleCart()" class="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-all">
+        Close
+      </button>
+    </div>
+  </div>
+   <!-- Mobile Navigation Menu -->
+<div id="mobileMenu" class="hidden fixed top-0 left-0 w-full h-full bg-white p-6 flex flex-col items-center shadow-lg transform transition-transform duration-300 ease-in-out -translate-x-full">
+    <button onclick="toggleMenu()" class="self-end text-gray-600 text-2xl hover:text-gray-900 transition-colors duration-200">✖</button>
+    <nav class="mt-6 w-full text-center space-y-4">
+        <a href="pet.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Home</a>
+        <a href="aboutus.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">About</a>
+        <a href="dogs.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Dogs</a>
+        <a href="cats.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Cats</a>
+        <a href="pets.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Small Pets</a>
+        <a href="products.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Products</a>
+        <a href="care.html" class="block p-4 text-lg text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">Care</a>
+        <a href="qq.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">questionaire</a>
+    </nav>
+  </div>
+  
+  <script>
+  function toggleMenu() {
+    const menu = document.getElementById('mobileMenu');
+    menu.classList.toggle('hidden');
+    menu.classList.toggle('translate-x-0');
+  }
+  </script>
+    <!-- Main Content -->
+    <main class="mt-16">
+        <!-- Hero Section -->
+        <section class="relative h-[600px] bg-cover bg-center animate-float" style="background-image: url('https://img.freepik.com/free-photo/close-up-pet-accessories_23-2150960027.jpg?t=st=1741107820~exp=1741111420~hmac=b2541c7c2ca8110493e49f716a209718e7b3889a521ab6ed262f70841ddd0692&w=1380')">
+            <div class="absolute inset-0 bg-black bg-opacity-70 z-10"></div>
+            <div class="relative max-w-7xl mx-auto px-4 h-full flex items-center z-20" id="heroContent">
+                <div class="text-white max-w-2xl">
+                    <h1 class="text-5xl font-bold mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-fade-in-down" id="heroTitle">
+                      Happy Pets, Happier Homes: Shop PawParadise Products
+                    </h1>
+                    <p class="text-xl mb-8 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-fade-in-up" id="heroDesc">
+                      Fuel their zoomies, fluff their nests, and fill their days with joy!  Find everything to make your pet thrive, and bring even more love into your home
+                    </p>
+                   
+                </div>
+            </div>
+        </section>
+        <style>
+          @keyframes fadeInDown {
+              0% {
+                  opacity: 0;
+                  transform: translateY(-20px);
+              }
+              100% {
+                  opacity: 1;
+                  transform: translateY(0);
+              }
+          }
+      
+          @keyframes fadeInUp {
+              0% {
+                  opacity: 0;
+                  transform: translateY(20px);
+              }
+              100% {
+                  opacity: 1;
+                  transform: translateY(0);
+              }
+          }
+      
+          @keyframes fadeIn {
+              0% {
+                  opacity: 0;
+              }
+              100% {
+                  opacity: 1;
+              }
+          }
+      
+          .animate-fade-in-down {
+              animation: fadeInDown 1s ease-out forwards;
+          }
+      
+          .animate-fade-in-up {
+              animation: fadeInUp 1s ease-out forwards;
+          }
+      
+          .animate-fade-in {
+              animation: fadeIn 1s ease-out forwards;
+          }
+      </style>
+  
+
+        <!-- Featured Dog Breeds Section -->
+        <section class="py-16 bg-gradient-to-b from-white via-purple-50/80 via-pink-50/50 via-blue-50/30 to-white" data-aos="fade-up">
+            <div class="max-w-7xl mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">Featured Pet Products</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8" data-aos="fade-up" data-aos-delay="200">
+        
+                    <!-- Dry Pet Food -->
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all">
+                        <div class="h-64 overflow-hidden">
+                            <img src="https://images.pexels.com/photos/12928244/pexels-photo-12928244.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Dry Pet Food">
+                        </div>
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-semibold">Premium Dry Dog Food</h3>
+                                <div class="flex text-yellow-400">
+                                    ★★★★☆ <span class="text-sm text-gray-600 ml-2">4.2</span>
+                                </div>
+                            </div>
+                            <p class="text-gray-600 mb-2">Complete nutrition for adult dogs with real chicken</p>
+                            <p class="text-lg font-bold text-primary mb-4">$<span class="price">49.99</span></p>
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="flex items-center border rounded-lg">
+                                    <button class="px-3 py-1 border-r decrement">−</button>
+                                    <span class="px-4 quantity">1</span>
+                                    <button class="px-3 py-1 border-l increment">+</button>
+                                </div>
+                                <span class="text-gray-600">Subtotal: $<span class="subtotal">49.99</span></span>
+                            </div>
+                            <div class="flex gap-4">
+                                <button class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all"
+                                onclick="addToCart({
+                                    name: 'Premium Dry Dog Food',
+                                    price: 49.99,
+                                    quantity: parseInt(this.closest('.bg-white').querySelector('.quantity').textContent)
+                                })">
+                            Buy Now
+                        </button>
+                                <button class="text-primary flex items-center border border-primary px-6 py-3 rounded-lg hover:bg-purple-50 transition-all">
+                                    Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 2. Grain-Free Wet Cat Food -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/20635786/pexels-photo-20635786/free-photo-of-cats-with-food.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Wet Cat Food">
+    </div>
+    <div class="p-6">
+        <div class="flex justify-between items-start mb-2">
+            <h3 class="text-xl font-semibold">Grain-Free Wet Cat Food</h3>
+            <div class="flex text-yellow-400">
+                ★★★★☆ <span class="text-sm text-gray-600 ml-2">4.5</span>
+            </div>
+        </div>
+        <p class="text-gray-600 mb-2">High-protein recipe with salmon and essential nutrients</p>
+        <p class="text-lg font-bold text-primary mb-4">$<span class="price">24.99</span></p>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="flex items-center border rounded-lg">
+                <button class="px-3 py-1 border-r decrement">−</button>
+                <span class="px-4 quantity">1</span>
+                <button class="px-3 py-1 border-l increment">+</button>
+            </div>
+            <span class="text-gray-600">Subtotal: $<span class="subtotal">24.99</span></span>
+        </div>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all"
+            onclick="addToCart({
+                name: 'Grain-Free Wet Cat Food',
+                price: 24.99,
+                quantity: parseInt(this.closest('.bg-white').querySelector('.quantity').textContent)
+            })">
+        Buy Now
+    </button>
+            <button class="text-primary flex items-center border border-primary px-6 py-3 rounded-lg hover:bg-purple-50 transition-all">
+                Details
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 3. Rabbit Timothy Hay -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/30276535/pexels-photo-30276535/free-photo-of-adorable-bunny-with-fresh-lettuce-in-cage.jpeg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Rabbit Hay">
+    </div>
+    <div class="p-6">
+        <div class="flex justify-between items-start mb-2">
+            <h3 class="text-xl font-semibold">Premium Timothy grass</h3>
+            <div class="flex text-yellow-400">
+                ★★★★☆ <span class="text-sm text-gray-600 ml-2">4.7</span>
+            </div>
+        </div>
+        <p class="text-gray-600 mb-2">Fresh, high-fiber grass for rabbits and small herbivores</p>
+        <p class="text-lg font-bold text-primary mb-4">$<span class="price">12.99</span></p>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="flex items-center border rounded-lg">
+                <button class="px-3 py-1 border-r decrement">−</button>
+                <span class="px-4 quantity">1</span>
+                <button class="px-3 py-1 border-l increment">+</button>
+            </div>
+            <span class="text-gray-600">Subtotal: $<span class="subtotal">12.99</span></span>
+        </div>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all"
+            onclick="addToCart({
+                name: 'Premium Timothy grass',
+                price: 12.99,
+                quantity: parseInt(this.closest('.bg-white').querySelector('.quantity').textContent)
+            })">
+        Buy Now
+    </button>
+            <button class="text-primary flex items-center border border-primary px-6 py-3 rounded-lg hover:bg-purple-50 transition-all">
+                Details
+            </button>
+        </div>
+        <!-- Quantity controls same as above -->
+    </div>
+</div>
+
+<!-- 4. Dog Leash & Collar Set -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/11512215/pexels-photo-11512215.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Dog Leash Set">
+    </div>
+    <div class="p-6">
+        <div class="flex justify-between items-start mb-2">
+            <h3 class="text-xl font-semibold">Reflective Dog Leash Set</h3>
+            <div class="flex text-yellow-400">
+                ★★★★★ <span class="text-sm text-gray-600 ml-2">4.9</span>
+            </div>
+        </div>
+        <p class="text-gray-600 mb-2">Durable nylon leash with padded collar and safety reflectors</p>
+        <p class="text-lg font-bold text-primary mb-4">$<span class="price">24.99</span></p>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="flex items-center border rounded-lg">
+                <button class="px-3 py-1 border-r decrement">−</button>
+                <span class="px-4 quantity">1</span>
+                <button class="px-3 py-1 border-l increment">+</button>
+            </div>
+            <span class="text-gray-600">Subtotal: $<span class="subtotal">24.99</span></span>
+        </div>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all"
+            onclick="addToCart({
+                name: 'Reflective Dog Leash Set',
+                price: 24.99,
+                quantity: parseInt(this.closest('.bg-white').querySelector('.quantity').textContent)
+            })">
+        Buy Now
+    </button>
+            <button class="text-primary flex items-center border border-primary px-6 py-3 rounded-lg hover:bg-purple-50 transition-all">
+                Details
+            </button>
+        </div>
+        <!-- Quantity controls same as above -->
+    </div>
+</div>
+
+<!-- 5. Cat Litter Bundle -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all">
+    <div class="h-64 overflow-hidden">
+        <img src="https://fearfreepets.com/wp-content/uploads/2020/03/bigstock-The-Excretion-Of-A-Cat-At-The-293172772.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Cat Litter">
+    </div>
+    <div class="p-6">
+        <div class="flex justify-between items-start mb-2">
+            <h3 class="text-xl font-semibold">Clumping Cat Litter</h3>
+            <div class="flex text-yellow-400">
+                ★★★★☆ <span class="text-sm text-gray-600 ml-2">4.3</span>
+            </div>
+        </div>
+        <p class="text-gray-600 mb-2">Low-dust formula with odor control, 20lb bundle</p>
+        <p class="text-lg font-bold text-primary mb-4">$<span class="price">18.50</span></p>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="flex items-center border rounded-lg">
+                <button class="px-3 py-1 border-r decrement">−</button>
+                <span class="px-4 quantity">1</span>
+                <button class="px-3 py-1 border-l increment">+</button>
+            </div>
+            <span class="text-gray-600">Subtotal: $<span class="subtotal">18.50</span></span>
+        </div>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all"
+            onclick="addToCart({
+                name: 'Clumping Cat Litter',
+                price: 18.50,
+                quantity: parseInt(this.closest('.bg-white').querySelector('.quantity').textContent)
+            })">
+        Buy Now
+    </button>
+            <button class="text-primary flex items-center border border-primary px-6 py-3 rounded-lg hover:bg-purple-50 transition-all">
+                Details
+            </button>
+        </div>
+        <!-- Quantity controls same as above -->
+    </div>
+</div>
+
+<!-- 6. Orthopedic Dog Bed -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/247968/pexels-photo-247968.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Dog Bed">
+    </div>
+    <div class="p-6">
+        <div class="flex justify-between items-start mb-2">
+            <h3 class="text-xl font-semibold">Orthopedic Dog Bed</h3>
+            <div class="flex text-yellow-400">
+                ★★★★☆ <span class="text-sm text-gray-600 ml-2">4.8</span>
+            </div>
+        </div>
+        <p class="text-gray-600 mb-2">Memory foam bed with waterproof lining</p>
+        <p class="text-lg font-bold text-primary mb-4">$<span class="price">89.99</span></p>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="flex items-center border rounded-lg">
+                <button class="px-3 py-1 border-r decrement">−</button>
+                <span class="px-4 quantity">1</span>
+                <button class="px-3 py-1 border-l increment">+</button>
+            </div>
+            <span class="text-gray-600">Subtotal: $<span class="subtotal">89.99</span></span>
+        </div>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all"
+            onclick="addToCart({
+                name: 'Orthopedic Dog Bed',
+                price: 89.99,
+                quantity: parseInt(this.closest('.bg-white').querySelector('.quantity').textContent)
+            })">
+        Buy Now
+    </button>
+            <button class="text-primary flex items-center border border-primary px-6 py-3 rounded-lg hover:bg-purple-50 transition-all">
+                Details
+            </button>
+        </div>
+        <!-- Quantity controls same as above -->
+    </div>
+</div>
+
+<!-- 7. Aquarium Starter Kit -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/30427233/pexels-photo-30427233/free-photo-of-colorful-fish-swimming-in-aquarium-tank.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2]" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Aquarium Kit">
+    </div>
+    <div class="p-6">
+        <div class="flex justify-between items-start mb-2">
+            <h3 class="text-xl font-semibold">20-Gallon Aquarium Kit</h3>
+            <div class="flex text-yellow-400">
+                ★★★★☆ <span class="text-sm text-gray-600 ml-2">4.6</span>
+            </div>
+        </div>
+        <p class="text-gray-600 mb-2">Complete setup with filter, LED lights, and heater</p>
+        <p class="text-lg font-bold text-primary mb-4">$<span class="price">149.99</span></p>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="flex items-center border rounded-lg">
+                <button class="px-3 py-1 border-r decrement">−</button>
+                <span class="px-4 quantity">1</span>
+                <button class="px-3 py-1 border-l increment">+</button>
+            </div>
+            <span class="text-gray-600">Subtotal: $<span class="subtotal">149.99</span></span>
+        </div>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all"
+            onclick="addToCart({
+                name: '20-Gallon Aquarium Kit',
+                price: 149.99,
+                quantity: parseInt(this.closest('.bg-white').querySelector('.quantity').textContent)
+            })">
+        Buy Now
+    </button>>
+            <button class="text-primary flex items-center border border-primary px-6 py-3 rounded-lg hover:bg-purple-50 transition-all">
+                Details
+            </button>
+        </div>
+        <!-- Quantity controls same as above -->
+    </div>
+</div>
+
+<!-- 8. Small Animal Playpen -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all">
+    <div class="h-64 overflow-hidden">
+        <img src="https://www.omlet.co.uk/images/cache/1024/1024/90/choose-from-our-range-of-hamster-accessories-to-add-fun-to-your-hamster-playpen.webp" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Small Animal Playpen">
+    </div>
+    <div class="p-6">
+        <div class="flex justify-between items-start mb-2">
+            <h3 class="text-xl font-semibold">Hamster Playpen Set</h3>
+            <div class="flex text-yellow-400">
+                ★★★★☆ <span class="text-sm text-gray-600 ml-2">4.4</span>
+            </div>
+        </div>
+        <p class="text-gray-600 mb-2">Expandable habitat with tunnels and exercise wheel</p>
+        <p class="text-lg font-bold text-primary mb-4">$<span class="price">34.99</span></p>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="flex items-center border rounded-lg">
+                <button class="px-3 py-1 border-r decrement">−</button>
+                <span class="px-4 quantity">1</span>
+                <button class="px-3 py-1 border-l increment">+</button>
+            </div>
+            <span class="text-gray-600">Subtotal: $<span class="subtotal">34.99</span></span>
+        </div>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all"
+            onclick="addToCart({
+                name: 'Hamster Playpen Set',
+                price: 34.99,
+                quantity: parseInt(this.closest('.bg-white').querySelector('.quantity').textContent)
+            })">
+        Buy Now
+    </button>>
+            <button class="text-primary flex items-center border border-primary px-6 py-3 rounded-lg hover:bg-purple-50 transition-all">
+                Details
+            </button>
+        </div>
+        <!-- Quantity controls same as above -->
+    </div>
+</div>
+
+<!-- 9. Dog Grooming Kit -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/422212/pexels-photo-422212.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Grooming Kit">
+    </div>
+    <div class="p-6">
+        <div class="flex justify-between items-start mb-2">
+            <h3 class="text-xl font-semibold">Professional Grooming Kit</h3>
+            <div class="flex text-yellow-400">
+                ★★★★★ <span class="text-sm text-gray-600 ml-2">4.9</span>
+            </div>
+        </div>
+        <p class="text-gray-600 mb-2">10-piece set with clippers, brushes, and nail trimmer</p>
+        <p class="text-lg font-bold text-primary mb-4">$<span class="price">59.95</span></p>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="flex items-center border rounded-lg">
+                <button class="px-3 py-1 border-r decrement">−</button>
+                <span class="px-4 quantity">1</span>
+                <button class="px-3 py-1 border-l increment">+</button>
+            </div>
+            <span class="text-gray-600">Subtotal: $<span class="subtotal">59.95</span></span>
+        </div>
+        <div class="flex gap-4">
+              <button class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all"
+            onclick="addToCart({
+                name: 'Professional Grooming Kit',
+                price: 59.95,
+                quantity: parseInt(this.closest('.bg-white').querySelector('.quantity').textContent)
+            })">
+        Buy Now
+    </button>>
+            <button class="text-primary flex items-center border border-primary px-6 py-3 rounded-lg hover:bg-purple-50 transition-all">
+                Details
+            </button>
+        </div>
+        <!-- Quantity controls same as above -->
+    </div>
+</div>
+
+<!-- 10. Bird Cage with Stand -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/2888319/pexels-photo-2888319.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Bird Cage">
+    </div>
+    <div class="p-6">
+        <div class="flex justify-between items-start mb-2">
+            <h3 class="text-xl font-semibold">Large Bird Cage</h3>
+            <div class="flex text-yellow-400">
+                ★★★★☆ <span class="text-sm text-gray-600 ml-2">4.5</span>
+            </div>
+        </div>
+        <p class="text-gray-600 mb-2">Spacious stainless steel cage with 3 perches</p>
+        <p class="text-lg font-bold text-primary mb-4">$<span class="price">129.99</span></p>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="flex items-center border rounded-lg">
+                <button class="px-3 py-1 border-r decrement">−</button>
+                <span class="px-4 quantity">1</span>
+                <button class="px-3 py-1 border-l increment">+</button>
+            </div>
+            <span class="text-gray-600">Subtotal: $<span class="subtotal">129.99</span></span>
+        </div>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all"
+            onclick="addToCart({
+                name: 'Large Bird Cage',
+                price: 129.99,
+                quantity: parseInt(this.closest('.bg-white').querySelector('.quantity').textContent)
+            })">
+        Buy Now
+    </button>>
+            <button class="text-primary flex items-center border border-primary px-6 py-3 rounded-lg hover:bg-purple-50 transition-all">
+                Details
+            </button>
+        </div>
+        <!-- Quantity controls same as above -->
+    </div>
+</div>
+
+<!-- 11. Pet Travel Carrier -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/28380665/pexels-photo-28380665/free-photo-of-young-couple-with-dogs-relaxing-at-home.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Pet Carrier">
+    </div>
+    <div class="p-6">
+        <div class="flex justify-between items-start mb-2">
+            <h3 class="text-xl font-semibold">Airline-Approved Carrier</h3>
+            <div class="flex text-yellow-400">
+                ★★★★☆ <span class="text-sm text-gray-600 ml-2">4.7</span>
+            </div>
+        </div>
+        <p class="text-gray-600 mb-2">Soft-sided carrier with ventilation and safety straps</p>
+        <p class="text-lg font-bold text-primary mb-4">$<span class="price">45.99</span></p>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="flex items-center border rounded-lg">
+                <button class="px-3 py-1 border-r decrement">−</button>
+                <span class="px-4 quantity">1</span>
+                <button class="px-3 py-1 border-l increment">+</button>
+            </div>
+            <span class="text-gray-600">Subtotal: $<span class="subtotal">45.99</span></span>
+        </div>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all"
+            onclick="addToCart({
+                name: 'Large Bird Cage',
+                price: 45.99,
+                quantity: parseInt(this.closest('.bg-white').querySelector('.quantity').textContent)
+            })">
+        Buy Now
+    </button>>
+            <button class="text-primary flex items-center border border-primary px-6 py-3 rounded-lg hover:bg-purple-50 transition-all">
+                Details
+            </button>
+        </div>
+        <!-- Quantity controls same as above -->
+    </div>
+</div>
+
+<!-- 12. Fish Food Variety Pack -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all">
+    <div class="h-64 overflow-hidden">
+        <img src="https://as1.ftcdn.net/v2/jpg/11/43/64/16/1000_F_1143641685_GxzgvGID1rOeQhcng600vCcid7RllNSp.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Fish Food">
+    </div>
+    <div class="p-6">
+        <div class="flex justify-between items-start mb-2">
+            <h3 class="text-xl font-semibold">Tropical Fish Food Kit</h3>
+            <div class="flex text-yellow-400">
+                ★★★★☆ <span class="text-sm text-gray-600 ml-2">4.6</span>
+            </div>
+        </div>
+        <p class="text-gray-600 mb-2">3-in-1 formula with flakes, pellets, and treats</p>
+        <p class="text-lg font-bold text-primary mb-4">$<span class="price">15.99</span></p>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="flex items-center border rounded-lg">
+                <button class="px-3 py-1 border-r decrement">−</button>
+                <span class="px-4 quantity">1</span>
+                <button class="px-3 py-1 border-l increment">+</button>
+            </div>
+            <span class="text-gray-600">Subtotal: $<span class="subtotal">15.99</span></span>
+        </div>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all"
+            onclick="addToCart({
+                name: 'Tropical Fish Food Kit',
+                price: 15.99,
+                quantity: parseInt(this.closest('.bg-white').querySelector('.quantity').textContent)
+            })">
+        Buy Now
+    </button>>
+            <button class="text-primary flex items-center border border-primary px-6 py-3 rounded-lg hover:bg-purple-50 transition-all">
+                Details
+            </button>
+        </div>
+        <!-- Quantity controls same as above -->
+    </div>
+</div>
+
+<!-- 13. Pet Water Fountain -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all">
+    <div class="h-64 overflow-hidden">
+        <img src="https://thumbs.dreamstime.com/z/thirsty-longhair-cat-drinking-water-pet-fountain-front-white-brickwall-130286062.jpg?ct=jpeg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Water Fountain">
+    </div>
+    <div class="p-6">
+        <div class="flex justify-between items-start mb-2">
+            <h3 class="text-xl font-semibold">Smart Water Fountain</h3>
+            <div class="flex text-yellow-400">
+                ★★★★★ <span class="text-sm text-gray-600 ml-2">4.8</span>
+            </div>
+        </div>
+        <p class="text-gray-600 mb-2">Quiet circulating fountain with filter</p>
+        <p class="text-lg font-bold text-primary mb-4">$<span class="price">39.95</span></p>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="flex items-center border rounded-lg">
+                <button class="px-3 py-1 border-r decrement">−</button>
+                <span class="px-4 quantity">1</span>
+                <button class="px-3 py-1 border-l increment">+</button>
+            </div>
+            <span class="text-gray-600">Subtotal: $<span class="subtotal">39.95</span></span>
+        </div>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all"
+            onclick="addToCart({
+                name: 'Smart Water Fountain',
+                price: 39.95,
+                quantity: parseInt(this.closest('.bg-white').querySelector('.quantity').textContent)
+            })">
+        Buy Now
+    </button>>
+            <button class="text-primary flex items-center border border-primary px-6 py-3 rounded-lg hover:bg-purple-50 transition-all">
+                Details
+            </button>
+        </div>
+        <!-- Quantity controls same as above -->
+    </div>
+</div>
+
+<!-- 14. Dog Training Treats -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/8121142/pexels-photo-8121142.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Dog Treats">
+    </div>
+    <div class="p-6">
+        <div class="flex justify-between items-start mb-2">
+            <h3 class="text-xl font-semibold">Training Treats</h3>
+            <div class="flex text-yellow-400">
+                ★★★★☆ <span class="text-sm text-gray-600 ml-2">4.7</span>
+            </div>
+        </div>
+        <p class="text-gray-600 mb-2">Low-calorie chicken bites for positive reinforcement</p>
+        <p class="text-lg font-bold text-primary mb-4">$<span class="price">9.99</span></p>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="flex items-center border rounded-lg">
+                <button class="px-3 py-1 border-r decrement">−</button>
+                <span class="px-4 quantity">1</span>
+                <button class="px-3 py-1 border-l increment">+</button>
+            </div>
+            <span class="text-gray-600">Subtotal: $<span class="subtotal">9.99</span></span>
+        </div>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all"
+            onclick="addToCart({
+                name: 'Training Treats',
+                price: 9.99,
+                quantity: parseInt(this.closest('.bg-white').querySelector('.quantity').textContent)
+            })">
+        Buy Now
+    </button>>
+            <button class="text-primary flex items-center border border-primary px-6 py-3 rounded-lg hover:bg-purple-50 transition-all">
+                Details
+            </button>
+        </div>
+        <!-- Quantity controls same as above -->
+    </div>
+</div>
+
+<!-- 15. Cat Dental Care Kit -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-all">
+    <div class="h-64 overflow-hidden">
+        <img src="https://images.pexels.com/photos/6560385/pexels-photo-6560385.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Dental Kit">
+    </div>
+    <div class="p-6">
+        <div class="flex justify-between items-start mb-2">
+            <h3 class="text-xl font-semibold">Cat Dental Care Kit</h3>
+            <div class="flex text-yellow-400">
+                ★★★★☆ <span class="text-sm text-gray-600 ml-2">4.2</span>
+            </div>
+        </div>
+        <p class="text-gray-600 mb-2">Toothbrush, toothpaste, and dental chews</p>
+        <p class="text-lg font-bold text-primary mb-4">$<span class="price">19.95</span></p>
+        <div class="flex items-center gap-4 mb-4">
+            <div class="flex items-center border rounded-lg">
+                <button class="px-3 py-1 border-r decrement">−</button>
+                <span class="px-4 quantity">1</span>
+                <button class="px-3 py-1 border-l increment">+</button>
+            </div>
+            <span class="text-gray-600">Subtotal: $<span class="subtotal">19.95</span></span>
+        </div>
+        <div class="flex gap-4">
+            <button class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all"
+            onclick="addToCart({
+                name: 'Training Treats',
+                price: 19.95,
+                quantity: parseInt(this.closest('.bg-white').querySelector('.quantity').textContent)
+            })">
+        Buy Now
+    </button>>
+            <button class="text-primary flex items-center border border-primary px-6 py-3 rounded-lg hover:bg-purple-50 transition-all">
+                Details
+            </button>
+        </div>
+        <!-- Quantity controls same as above -->
+    </div>
+</div>
+        
+                    <!-- Add more product cards following the same structure -->
+        
+               
+        
+                    <!-- Add more products following the same structure -->
+                    <!-- Include other products like aquarium kits, grooming tools, etc. -->
+                    <!-- Remember to update images, titles, descriptions, prices, and star ratings -->
+        
+                </div>
+            </div>
+        </section>
+                    <!-- Add cards for the remaining breeds similarly -->
+                </div>
+            </div>
+        </section>
+    </main>
+    
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Footer content from your index.html -->
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 PawParadise. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+
+
+    <!-- JavaScript -->
+    <script>
+ function toggleCart() {
+  const cartPopup = document.getElementById('cartPopup');
+  const overlay = document.getElementById('overlay');
+  cartPopup.classList.toggle('hidden');
+  overlay.classList.toggle('hidden');
+}
+        // Function to toggle mobile menu
+        function toggleMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+            } else {
+                console.error("Mobile menu element not found.");
+            }
+        }
+    
+        // Function to toggle search bar
+        function toggleSearch() {
+            const searchBar = document.getElementById('searchBar');
+            if (searchBar) {
+                searchBar.classList.toggle('hidden');
+            } else {
+                console.error("Search bar element not found.");
+            }
+        }
+    
+        // Function to show a popup message
+        function showPopup(title, message) {
+            const popup = document.createElement('div');
+            popup.className = 'fixed top-4 right-4 bg-white p-6 rounded-lg shadow-lg z-50';
+            popup.innerHTML = `
+                <h3 class="text-lg font-bold mb-2">${title}</h3>
+                <p class="text-gray-700">${message}</p>
+            `;
+            document.body.appendChild(popup);
+    
+            // Remove the popup after 3 seconds
+            setTimeout(() => {
+                popup.remove();
+            }, 3000);
+        }
+    
+    
+       
+    
+      
+    
+        // Initialize AOS animations
+        if (typeof AOS !== 'undefined') {
+            AOS.init({
+                duration: 1000,
+                easing: 'ease-out',
+                once: true
+            });
+        } else {
+            console.error("AOS library not found.");
+        }
+    </script>
+</body>
+</html>

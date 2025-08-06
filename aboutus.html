@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Us - PawfectCare Pet Shop</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="./button.css">
+<style>
+      @keyframes pop {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    .pop-on-hover:hover {
+      animation: pop 0.3s ease-in-out;
+    }
+@keyframes smoothBounce {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px); /* Adjust the distance for a less intense bounce */
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.hover\:animate-bounce-smooth:hover {
+  animation: smoothBounce 0.4s ease-in-out; /* Adjust the duration to make it smoother */
+}
+    </style>
+    
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+</style>
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+primary: '#8B5CF6',
+secondary: '#4ECDC4'
+},
+borderRadius: {
+'none': '0px',
+'sm': '8px',
+DEFAULT: '12px',
+'md': '16px',
+'lg': '20px',
+'xl': '24px',
+'2xl': '28px',
+'3xl': '32px',
+'full': '9999px',
+'button': '12px'
+}
+}
+}
+}
+</script>
+</head>
+<body class="bg-white">
+<nav class="fixed w-full bg-white/95 backdrop-blur-sm z-50 border-b">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between h-16 items-center">
+<div class="flex items-center">
+<span class="text-2xl font-['Pacifico'] text-primary">PawPal</span>
+</div>
+
+<div class="hidden md:flex items-center space-x-8 ml-10">
+  <a href="pet.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Home</a>
+  <a href="aboutus.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">About Us</a>
+  <a href="dogs.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">dogs</a>
+  <a href="cats.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">cats</a>
+  <a href="pets.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">small pets</a>
+  <a href="products.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Products</a>
+  <a href="care.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">Care</a>
+  <a href="qq.html" class="nav-link text-gray-700 hover:animate-bounce-smooth">questionaire</a>
+</div> 
+
+
+</div>
+</div>
+</nav>
+<section class="relative pt-24 overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img src="https://images.pexels.com/photos/4967723/pexels-photo-4967723.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="w-full h-full object-cover object-top" alt="Happy pets">
+<div class="absolute inset-0 bg-gradient-to-r from-white/90 to-white/50"></div>
+</div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-24">
+<div class="max-w-3xl">
+<h1 class="text-5xl font-bold text-gray-900 mb-6">Caring for Your Pets Like Family</h1>
+<p class="text-xl text-gray-700 mb-8">Where every tail wag and purr matters. We're dedicated to providing exceptional care and premium products for your beloved companions.</p>
+<button class="!rounded-button bg-primary text-white px-8 py-3 text-lg hover:bg-primary/90 transition-colors whitespace-nowrap pop-on-hover">
+    Discover Our care
+  </button>
+  
+</div>
+</div>
+<style>
+  @keyframes fadeInDown {
+      0% {
+          opacity: 0;
+          transform: translateY(-20px);
+      }
+      100% {
+          opacity: 1;
+          transform: translateY(0);
+      }
+  }
+
+  @keyframes fadeInUp {
+      0% {
+          opacity: 0;
+          transform: translateY(20px);
+      }
+      100% {
+          opacity: 1;
+          transform: translateY(0);
+      }
+  }
+
+  @keyframes fadeIn {
+      0% {
+          opacity: 0;
+      }
+      100% {
+          opacity: 1;
+      }
+  }
+
+  .animate-fade-in-down {
+      animation: fadeInDown 1s ease-out forwards;
+  }
+
+  .animate-fade-in-up {
+      animation: fadeInUp 1s ease-out forwards;
+  }
+
+  .animate-fade-in {
+      animation: fadeIn 1s ease-out forwards;
+  }
+</style>
+
+</section>
+
+
+<section class="py-20 bg-gray-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid md:grid-cols-2 gap-12 items-center">
+<div class="float float-delay-1">
+<img src="https://public.readdy.ai/ai/img_res/6518b3a77971d8e5dcf9cec3419d242a.jpg" class="rounded-lg shadow-lg" alt="Our shop">
+</div>
+<div>
+<h2 class="text-3xl font-bold text-gray-900 mb-6">Our Story</h2>
+<p class="text-gray-700 mb-6">Founded with love and dedication, PawPal began as a passion project driven by our deep love for pets. What started as a simple idea soon grew into a trusted destination where pet owners find quality care, products, and a community that truly understands their furry companions. Our mission has always been to create a space where pets and their humans feel valued, supported, and cared for like family</p>
+<p class="text-gray-700 mb-6">With over a 3+ of experience in pet care, our team of certified professionals ensures that every pet receives personalized attention and the highest standard of care</p>
+<div class="flex space-x-4">
+<div class="text-center">
+<p class="text-4xl font-bold text-primary">3+</p>
+<p class="text-gray-600">Years Experience</p>
+</div>
+<div class="text-center">
+<p class="text-4xl font-bold text-primary">5000+</p>
+<p class="text-gray-600">Happy Pets</p>
+</div>
+<div class="text-center">
+<p class="text-4xl font-bold text-primary">98%</p>
+<p class="text-gray-600">Satisfaction Rate</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-20">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Meet Our Team</h2>
+<div class="grid md:grid-cols-2 gap-8">
+<div class="bg-white p-6 rounded-lg shadow-lg float float-delay-1">
+<div class="flex items-center space-x-4">
+<img src="https://public.readdy.ai/ai/img_res/29f253d14b9e57261779d649b525b971.jpg" class="w-24 h-24 rounded-full object-cover" alt="Dr. Sarah Mitchell">
+<div>
+<h3 class="text-xl font-bold text-gray-900">Sree varsha </h3>
+<p class="text-gray-600">Pet Enthusiast</p>
+</div>
+</div>
+<p class="mt-4 text-gray-700">A passionate animal lover Sree Varsha is deeply dedicated to the well-being of pets. Her love for animals drives her to understand and care for them with compassion</p>
+</div>
+<div class="bg-white p-6 rounded-lg shadow-lg float float-delay-2">
+<div class="flex items-center space-x-4">
+<img src="https://public.readdy.ai/ai/img_res/bbcb042126d1e49f0c3e8ea72cac9659.jpg" class="w-24 h-24 rounded-full object-cover" alt="James Wilson">
+<div>
+<h3 class="text-xl font-bold text-gray-900">John varshith</h3>
+<p class="text-gray-600">Animal Lover</p>
+</div>
+</div>
+<p class="mt-4 text-gray-700">Sharing the same passion as Varsha, John is committed to enriching the lives of pets. His love for animals reflects in his care and devotion to their happiness</p>
+</div>
+</div>
+</div>
+</section>
+<section class="py-20 bg-gray-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Why Choose Us</h2>
+<div class="grid md:grid-cols-3 gap-8">
+<div class="bg-white p-6 rounded-lg shadow-lg float float-delay-1">
+<div class="w-12 h-12 flex items-center justify-center bg-primary/10 rounded-full mb-4">
+<i class="ri-heart-line text-primary text-2xl"></i>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-3">Expert Care</h3>
+<p class="text-gray-700">Our certified team provides comprehensive care with the latest techniques and equipment.</p>
+</div>
+<div class="bg-white p-6 rounded-lg shadow-lg float float-delay-2">
+<div class="w-12 h-12 flex items-center justify-center bg-primary/10 rounded-full mb-4">
+<i class="ri-shield-check-line text-primary text-2xl"></i>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-3">Premium Products</h3>
+<p class="text-gray-700">We carefully select and stock only the highest quality pet supplies and nutrition products.</p>
+</div>
+<div class="bg-white p-6 rounded-lg shadow-lg float float-delay-3">
+<div class="w-12 h-12 flex items-center justify-center bg-primary/10 rounded-full mb-4">
+<i class="ri-customer-service-line text-primary text-2xl"></i>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-3">24/7 Support</h3>
+<p class="text-gray-700">Emergency support available around the clock for your peace of mind.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="py-20 bg-primary/5">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+<h2 class="text-3xl font-bold text-gray-900 mb-6">Ready to Give Your Pet the Best Care?</h2>
+<p class="text-xl text-gray-700 mb-8">Join our family of happy pets and satisfied owners.</p>
+<button class="!rounded-button bg-primary text-white px-8 py-3 text-lg hover:bg-primary/90 transition-colors whitespace-nowrap pop-on-hover">
+Home
+</button>
+</div>
+</section>
+<footer class="bg-gray-900 text-white py-12">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid md:grid-cols-4 gap-8">
+<div>
+<span class="text-2xl font-['Pacifico'] text-white mb-4 block">PawPal</span>
+<p class="text-gray-400">Providing exceptional pet care since 2023</p>
+</div>
+<div>
+<h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+<ul class="space-y-2">
+<li><a href="pet.html" class="text-gray-400 hover:text-white">Services</a></li>
+<li><a href="aboutus.html" class="text-gray-400 hover:text-white">Products</a></li>
+<li><a href="#" class="text-gray-400 hover:text-white">About Us</a></li>
+<li><a href="#" class="text-gray-400 hover:text-white">Care</a></li>
+</ul>
+</div>
+<div>
+<h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+<ul class="space-y-2">
+<li class="text-gray-400">123</li>
+<li class="text-gray-400">kavali</li>
+<li class="text-gray-400">2273A31033</li>
+<li class="text-gray-400">2273A31048</li>
+</ul>
+</div>
+<div>
+<h3 class="text-lg font-semibold mb-4">Follow Us</h3>
+<div class="flex space-x-4">
+<a href="#" class="text-gray-400 hover:text-white">
+<i class="ri-facebook-fill text-xl"></i>
+</a>
+<a href="#" class="text-gray-400 hover:text-white">
+<i class="ri-instagram-fill text-xl"></i>
+</a>
+<a href="#" class="text-gray-400 hover:text-white">
+<i class="ri-twitter-fill text-xl"></i>
+</a>
+</div>
+</div>
+</div>
+<div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+<p>&copy; 2025 pawparadise. All rights reserved.</p>
+</div>
+</div>
+</footer>
+</body>
+</html>

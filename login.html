@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up - Pawpal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#57B5E7',
+        secondary: '#FFB74D'
+      },
+      borderRadius: {
+        'none': '0px',
+        'sm': '8px',
+        DEFAULT: '12px',
+        'md': '16px',
+        'lg': '20px',
+        'xl': '24px',
+        '2xl': '28px',
+        '3xl': '32px',
+        'full': '9999px',
+        'button': '12px'
+      }
+    }
+  }
+}
+</script>
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+.form-container {
+  animation: slideUp 0.5s ease-out;
+}
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.shake {
+  animation: shake 0.5s;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+.animated-bg {
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+.glass-effect {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.7);
+}
+</style>
+</head>
+<body class="min-h-screen animated-bg flex items-center justify-center p-4">
+<div class="form-container w-full max-w-md">
+  <div class="text-center mb-8">
+    <h1 class="font-['Pacifico'] text-4xl text-primary mb-2">PawPal</h1>
+    <p class="text-gray-600 text-lg">Join PawFriends Community!</p>
+    <img src="https://public.readdy.ai/ai/img_res/5566dedf3d72ee52a1084538c96458be.jpg" alt="Waving Dog" class="mx-auto mt-4 w-24 h-24 object-cover rounded-full shadow-lg">
+  </div>
+  <div class="glass-effect rounded-lg shadow-xl p-8">
+    <form id="signupForm" class="space-y-6">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="ri-user-line text-gray-400"></i>
+          </div>
+          <input type="text" id="firstName" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-button text-sm focus:ring-2 focus:ring-primary focus:border-primary" placeholder="John" required>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Second Name</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="ri-user-line text-gray-400"></i>
+          </div>
+          <input type="text" id="secondName" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-button text-sm focus:ring-2 focus:ring-primary focus:border-primary" placeholder="Doe" required>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="ri-at-line text-gray-400"></i>
+          </div>
+          <input type="text" id="username" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-button text-sm focus:ring-2 focus:ring-primary focus:border-primary" placeholder="pawfriend123" required>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="ri-lock-line text-gray-400"></i>
+          </div>
+          <input type="password" id="password" class="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-button text-sm focus:ring-2 focus:ring-primary focus:border-primary" placeholder="••••••••" required>
+        </div>
+      </div>
+      <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-button text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary !rounded-button whitespace-nowrap">
+        Sign Up
+      </button>
+    </form>
+    <p class="mt-8 text-center text-sm text-gray-600">
+      Have an account?
+      <a href="login1.html" class="font-medium text-primary hover:text-primary/80">Login here</a>
+    </p>
+  </div>
+</div>
+
+<script>
+  document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const userData = {
+          firstName: document.getElementById('firstName').value,
+          secondName: document.getElementById('secondName').value,
+          username: document.getElementById('username').value,
+          password: document.getElementById('password').value
+      };
+  
+      try {
+          const response = await fetch('/api/signup', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify(userData)
+          });
+  
+          const data = await response.json();
+          if (data.success) {
+              window.location.href = data.redirect;
+          } else {
+              alert(data.message);
+              e.target.classList.add("shake");
+              setTimeout(() => e.target.classList.remove("shake"), 500);
+          }
+      } catch (error) {
+          console.error('Signup failed:', error);
+          alert('Signup failed!');
+      }
+  });
+  </script>
+</body>
+</html>

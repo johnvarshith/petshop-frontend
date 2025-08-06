@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    
+    <title>Panda Login Form</title>
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <form id="loginForm">
+        <p class="welcome-text" style="font-size: 20px;">Welcome to Panda's Pawpal</p>
+        <label for="username">Username:</label>
+        <input type="text" id="username" placeholder="Username here..." required>
+        <label for="password">Password:</label>
+        <input type="password" id="password" placeholder="Password here..." required>
+        <button type="submit">Login</button>
+      </form>
+      <!-- All panda elements -->
+      <div class="ear-l"></div>
+      <div class="ear-r"></div>
+      <div class="panda-face">
+        <div class="blush-l"></div>
+        <div class="blush-r"></div>
+        <div class="eye-l">
+          <div class="eyeball-l"></div>
+        </div>
+        <div class="eye-r">
+          <div class="eyeball-r"></div>
+        </div>
+        <div class="nose"></div>
+        <div class="mouth"></div>
+      </div>
+      <div class="hand-l"></div>
+      <div class="hand-r"></div>
+      <div class="paw-l"></div>
+      <div class="paw-r"></div>
+    </div>
+
+    <!-- Keep only one script block for form handling -->
+<!-- Replace the script section with: -->
+<script>
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const credentials = {
+          username: document.getElementById('username').value,
+          password: document.getElementById('password').value
+      };
+  
+      try {
+          const response = await fetch('/api/login', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify(credentials)
+          });
+  
+          const data = await response.json();
+          if (data.success) {
+              window.location.href = data.redirect;
+          } else {
+              alert(data.message);
+              e.target.classList.add("shake");
+              setTimeout(() => e.target.classList.remove("shake"), 500);
+          }
+      } catch (error) {
+          console.error('Login failed:', error);
+          alert('Login failed!');
+      }
+  });
+  </script>
+    <script src="script.js"></script>
+  </body>
+</html>
